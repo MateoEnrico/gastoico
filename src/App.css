@@ -1,0 +1,91 @@
+.App {
+  text-align: center;
+}
+
+header{
+  height: 100px;
+  background-color: #fff0dd;
+  overflow: hidden;
+  align-items: center;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.cont-logo{
+  margin-left: 1%;
+  background-color: #fff0dd;
+  display: inline-block;
+  height: 100%;
+  width: 210px;
+  overflow: hidden;
+  margin-right: 1.5%;
+}
+
+.logo{
+  margin-left: 15%;
+  height: 100%;
+  transform: scale(2);
+  width: auto;
+  transform-origin: center;
+}
+
+.navbar{
+  color: #00393d;
+  font-size: 20px;
+  font-weight: 700;
+  text-decoration: none;
+  flex: 0 0 auto;          /* no se estira en ancho si no querés */
+  height: 100%;             /* llena la altura del header */
+  display: flex;            /* para centrar el texto verticalmente */
+  align-items: center;      /* centra vertical */
+  padding: 0 15px;          /* espacio horizontal interno */
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.navbar:hover{
+  background-color: #efac3b;
+  font-size: 21px;
+}
+
+.cont-login{
+  position: absolute;
+  right: 1%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  width: 100px;
+  overflow: hidden;
+  color: #00393d;
+  text-decoration: none;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.cont-login:hover {
+  background-color: #efac3b;
+  text-decoration: underline;
+}
+
+
+.login{
+  height:45px;
+  width: 45px;
+  transform-origin: center;
+}
+/* Fin del navbar */
+
+.contenido{
+  color: #00393d;
+  margin-left: 2%;
+}
+
+.cont-prod{
+  margin-top: 0px;
+  height: 500px;
+  background-color: rgba(0, 57, 61, 0.5);
+  width: 400px;
+  border-radius: 10%;
+  text-align: center;
+}
