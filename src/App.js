@@ -3,6 +3,7 @@ import './App.css';
 
 function App() {
   const [productos, setProductos] = useState([]);
+  const [gastos, setGastos] = useState([])
 
   // Al cargar la página, si no hay productos, agregamos uno vacío
   useEffect(() => {
@@ -33,8 +34,47 @@ function App() {
     ));
   };
 
+  // 🗑️ Eliminar producto
+  const eliminarProducto = (id) => {
+    setProductos(productos.filter(p => p.id !== id));
+  };
+
+  // -----------------------------GASTOS---------------------------------
+  useEffect(() => {
+    if (gastos.length === 0) {
+      setGastos([{ id: Date.now(), area: '', costoXhora: '', guardado: false }]);
+    }
+  }, []);
+
+  // Agregar un nuevo gasto vacío
+  const agregarGasto = () => {
+    setGastos([
+      ...gastos,
+      { id: Date.now(), area: '', costoXhora: '', guardado: false }
+    ]);
+  };
+
+  // Guardar los datos de un gasto
+  const cargarGasto = (id, area, costoXhora) => {
+    setGastos(gastos.map(p =>
+      p.id === id ? { ...p, area, costoXhora, guardado: true } : p
+    ));
+  };
+
+  // Volver a modo edición
+  const editarGasto = (id) => {
+    setGastos(gastos.map(p =>
+      p.id === id ? { ...p, guardado: false } : p
+    ));
+  };
+
+  // 🗑️ Eliminar gasto
+  const eliminarGasto = (id) => {
+    setGastos(gastos.filter(p => p.id !== id));
+  };
+
   return (
-    <div>
+    <div className="cuerpo">
       <header>
         <a href="" className='cont-logo'>
           <img src="/navbarLogo.png" alt="Logo Gastoico" className='logo' />
@@ -46,23 +86,31 @@ function App() {
         <a href='#impuestos' className='navbar'>Impuestos</a>
         <a href='#servicios' className='navbar'>Servicios</a>
         <a href="" className='cont-login'>
-          <img src="/Login.png" alt="" className='login'/> Iniciar Sesión 
+          <img src="/Login.png" alt="" className='login'/>
         </a>
       </header>
 
       <div className='contenido'>
         <section id="productos">
-          <h1>Productos</h1>
-
+          <h1 className="section-title">Productos</h1>
           <div className='prod-container'>
             {productos.map((producto) => (
               <div key={producto.id} className='cont-prod'>
+                
+                {/* ❌ Botón para eliminar */}
+                <button
+                  className="bot-eliminar"
+                  onClick={() => eliminarProducto(producto.id)}
+                >
+                  ✖
+                </button>
+
                 {producto.guardado ? (
                   <div className="producto-info">
-                    <h3>{producto.nombre || "(sin nombre)"}</h3>
-                    <p>${producto.precio || 0}</p>
+                    <h3 className="producto-nombre">{producto.nombre || "(sin nombre)"}</h3>
+                    <p className="producto-data">${producto.precio || 0}</p>
                     <div style={{ marginTop: 8 }}>
-                      <button type="button" onClick={() => editarProducto(producto.id)}>
+                      <button type="button" onClick={() => editarProducto(producto.id)} className="bot-guardar">
                         Editar
                       </button>
                     </div>
@@ -95,8 +143,63 @@ function App() {
                 )}
               </div>
             ))}
-
             <button className='agreProd' onClick={agregarProducto}>+</button>
+          </div>
+        </section>
+
+        <section id="gastos-fijos">
+          <h1 className="section-title">Gastos fijos</h1>
+          <div className='prod-container'>
+            {gastos.map((gasto) => (
+              <div key={gasto.id} className='cont-prod'>
+                
+                {/* ❌ Botón para eliminar */}
+                <button
+                  className="bot-eliminar"
+                  onClick={() => eliminarGasto(gasto.id)}
+                >
+                  ✖
+                </button>
+
+                {gasto.guardado ? (
+                  <div className="producto-info">
+                    <h3 className="producto-nombre">{gasto.area || "(sin área)"}</h3>
+                    <p className="producto-data">${gasto.costoXhora || 0}</p>
+                    <div style={{ marginTop: 8 }}>
+                      <button type="button" onClick={() => editarGasto(gasto.id)} className="bot-guardar">
+                        Editar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form className="cont-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const area = e.target.area.value.trim();
+                      const costoXhora = e.target.costoXhora.value;
+                      cargarGasto(gasto.id, area, costoXhora);
+                    }}
+                  >
+                    <input
+                      name="area"
+                      type="text"
+                      placeholder="Área"
+                      defaultValue={gasto.area}
+                      className="formulario"
+                    />
+                    <input
+                      name="costoXhora"
+                      type="number"
+                      placeholder="Costo por hora"
+                      defaultValue={gasto.costoXhora}
+                      className="formulario"
+                    />
+                    <button type="submit" className="bot-guardar">Guardar</button>
+                  </form>
+                )}
+              </div>
+            ))}
+            <button className='agreProd' onClick={agregarGasto}>+</button>
           </div>
         </section>
       </div>
