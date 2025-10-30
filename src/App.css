@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ====== RESET ====== */
 * {
   margin: 0;
@@ -17,7 +21,7 @@ body.cuerpo {
 /* ====== HEADER ====== */
 html {
   scroll-behavior: smooth; /* Desplazamiento suave */
-  scroll-padding-top: 85px; /* deja 50px de margen arriba */
+  scroll-padding-top: 85px; /* deja 85px de margen arriba */
 }
 
 header {
@@ -34,7 +38,7 @@ header {
   z-index: 10;
 }
 
-/* Logo */
+/* ====== LOGO ====== */
 .cont-logo {
   display: flex;
   align-items: center;
@@ -52,7 +56,15 @@ header {
   transform: scale(1.05);
 }
 
-/* Navbar links */
+/* ====== NAVBAR LINKS ====== */
+.nav-links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
 .navbar {
   color: #00393d;
   font-size: 18px;
@@ -68,16 +80,7 @@ header {
   color: #fff0dd;
 }
 
-/* Navbar container (centrado) */
-.nav-links {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-}
-
-/* Login */
+/* ====== LOGIN ====== */
 .cont-login {
   display: flex;
   align-items: center;
@@ -90,7 +93,7 @@ header {
   cursor: pointer;
 }
 
-.login{
+.login {
   height: 45px;
   width: 45px;
 }
@@ -251,6 +254,21 @@ header {
   margin-top: 15px;
   font-size: 20px;
   color: #efac3b;
+}
+
+/* ====== FOOTER ====== */
+footer{
+  height: 80px;
+  background: rgba(255, 240, 221, 0.85);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid #00393d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2%;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 /* ====== RESPONSIVE ====== */

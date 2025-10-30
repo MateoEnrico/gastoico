@@ -1,48 +1,17 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import './App.css';
+import { Navbar } from "./components/UI/Navbar.jsx";
+import { Producto } from "./components/Producto.jsx";
+
 
 function App() {
-  const [productos, setProductos] = useState([]);
-  const [gastos, setGastos] = useState([])
-
-  // Al cargar la página, si no hay productos, agregamos uno vacío
-  useEffect(() => {
-    if (productos.length === 0) {
-      setProductos([{ id: Date.now(), nombre: '', precio: '', guardado: false }]);
-    }
-  }, []);
-
-  // Agregar un nuevo producto vacío
-  const agregarProducto = () => {
-    setProductos([
-      ...productos,
-      { id: Date.now(), nombre: '', precio: '', guardado: false }
-    ]);
-  };
-
-  // Guardar los datos de un producto
-  const cargarProducto = (id, nombre, precio) => {
-    setProductos(productos.map(p =>
-      p.id === id ? { ...p, nombre, precio, guardado: true } : p
-    ));
-  };
-
-  // Volver a modo edición
-  const editarProducto = (id) => {
-    setProductos(productos.map(p =>
-      p.id === id ? { ...p, guardado: false } : p
-    ));
-  };
-
-  // 🗑️ Eliminar producto
-  const eliminarProducto = (id) => {
-    setProductos(productos.filter(p => p.id !== id));
-  };
+  const [gastos, setGastos] = useState([]);
+  const [manos, setManos] = useState([])
 
   // -----------------------------GASTOS---------------------------------
   useEffect(() => {
     if (gastos.length === 0) {
-      setGastos([{ id: Date.now(), area: '', costoXhora: '', guardado: false }]);
+      setGastos([{ id: Date.now(), tipo: '', mes: '', precio: '', guardado: false }]);
     }
   }, []);
 
@@ -50,14 +19,14 @@ function App() {
   const agregarGasto = () => {
     setGastos([
       ...gastos,
-      { id: Date.now(), area: '', costoXhora: '', guardado: false }
+      { id: Date.now(), tipo: '', mes: '', precio: '', guardado: false }
     ]);
   };
 
   // Guardar los datos de un gasto
-  const cargarGasto = (id, area, costoXhora) => {
+  const cargarGasto = (id, tipo, mes, precio) => {
     setGastos(gastos.map(p =>
-      p.id === id ? { ...p, area, costoXhora, guardado: true } : p
+      p.id === id ? { ...p, tipo, mes, precio, guardado: true } : p
     ));
   };
 
@@ -73,80 +42,49 @@ function App() {
     setGastos(gastos.filter(p => p.id !== id));
   };
 
+    // -----------------------------Mano de obra---------------------------------
+  useEffect(() => {
+    if (manos.length === 0) {
+      setManos([{ id: Date.now(), area: '', costoXhora: '', cantHoras: '', cantDias: '', empleados: '', guardado: false }]);
+    }
+  }, []);
+
+  // Agregar un nuevo gasto vacío
+  const agregarMano = () => {
+    setManos([
+      ...manos,
+      { id: Date.now(), area: '', costoXhora: '', cantHoras: '', cantDias: '', empleados: '', guardado: false }
+    ]);
+  };
+
+  // Guardar los datos de un gasto
+  const cargarMano = (id, area, costoXhora, cantHoras, cantDias, empleados) => {
+    setManos(manos.map(p =>
+      p.id === id ? { ...p, area, costoXhora, cantHoras, cantDias, empleados, guardado: true } : p
+    ));
+  };
+
+  // Volver a modo edición
+  const editarMano = (id) => {
+    setManos(manos.map(p =>
+      p.id === id ? { ...p, guardado: false } : p
+    ));
+  };
+
+  // 🗑️ Eliminar gasto
+  const eliminarMano = (id) => {
+    setManos(manos.filter(p => p.id !== id));
+  };
+
   return (
     <div className="cuerpo">
-      <header>
-        <a href="" className='cont-logo'>
-          <img src="/navbarLogo.png" alt="Logo Gastoico" className='logo' />
-        </a>
-        <a href='#productos' className='navbar'>Productos</a>
-        <a href='#gastos-fijos' className='navbar'>Gastos fijos</a>
-        <a href='#mano-obra' className='navbar'>Mano de obra</a>
-        <a href='#materia-prima' className='navbar'>Materia prima</a>
-        <a href='#impuestos' className='navbar'>Impuestos</a>
-        <a href='#servicios' className='navbar'>Servicios</a>
-        <a href="" className='cont-login'>
-          <img src="/Login.png" alt="" className='login'/>
-        </a>
-      </header>
+      <Navbar/>
 
       <div className='contenido'>
         <section id="productos">
-          <h1 className="section-title">Productos</h1>
-          <div className='prod-container'>
-            {productos.map((producto) => (
-              <div key={producto.id} className='cont-prod'>
-                
-                {/* ❌ Botón para eliminar */}
-                <button
-                  className="bot-eliminar"
-                  onClick={() => eliminarProducto(producto.id)}
-                >
-                  ✖
-                </button>
-
-                {producto.guardado ? (
-                  <div className="producto-info">
-                    <h3 className="producto-nombre">{producto.nombre || "(sin nombre)"}</h3>
-                    <p className="producto-data">${producto.precio || 0}</p>
-                    <div style={{ marginTop: 8 }}>
-                      <button type="button" onClick={() => editarProducto(producto.id)} className="bot-guardar">
-                        Editar
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <form className="cont-form"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const nombre = e.target.nombre.value.trim();
-                      const precio = e.target.precio.value;
-                      cargarProducto(producto.id, nombre, precio);
-                    }}
-                  >
-                    <input
-                      name="nombre"
-                      type="text"
-                      placeholder="Nombre del producto"
-                      defaultValue={producto.nombre}
-                      className="formulario"
-                    />
-                    <input
-                      name="precio"
-                      type="number"
-                      placeholder="Precio"
-                      defaultValue={producto.precio}
-                      className="formulario"
-                    />
-                    <button type="submit" className="bot-guardar">Guardar</button>
-                  </form>
-                )}
-              </div>
-            ))}
-            <button className='agreProd' onClick={agregarProducto}>+</button>
-          </div>
+          <Producto/>
         </section>
-
+        {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------- */}
         <section id="gastos-fijos">
           <h1 className="section-title">Gastos fijos</h1>
           <div className='prod-container'>
@@ -163,8 +101,9 @@ function App() {
 
                 {gasto.guardado ? (
                   <div className="producto-info">
-                    <h3 className="producto-nombre">{gasto.area || "(sin área)"}</h3>
-                    <p className="producto-data">${gasto.costoXhora || 0}</p>
+                    <h3 className="producto-nombre">{gasto.tipo || "(sin nombre)"}</h3>
+                    <p className="producto-data">Mes: {gasto.mes || "(sin mes)"}</p>
+                    <p className="producto-data">Precio: ${gasto.precio || 0}</p>
                     <div style={{ marginTop: 8 }}>
                       <button type="button" onClick={() => editarGasto(gasto.id)} className="bot-guardar">
                         Editar
@@ -175,23 +114,31 @@ function App() {
                   <form className="cont-form"
                     onSubmit={(e) => {
                       e.preventDefault();
-                      const area = e.target.area.value.trim();
-                      const costoXhora = e.target.costoXhora.value;
-                      cargarGasto(gasto.id, area, costoXhora);
+                      const tipo = e.target.tipo.value.trim();
+                      const mes = e.target.mes.value;
+                      const precio = e.target.precio.value;
+                      cargarGasto(gasto.id, tipo, mes, precio);
                     }}
                   >
                     <input
-                      name="area"
+                      name="tipo"
                       type="text"
-                      placeholder="Área"
-                      defaultValue={gasto.area}
+                      placeholder="Nombre de costo"
+                      defaultValue={gasto.tipo}
                       className="formulario"
                     />
                     <input
-                      name="costoXhora"
+                      name="mes"
+                      type="text"
+                      placeholder="Mes de cobro"
+                      defaultValue={gasto.mes}
+                      className="formulario"
+                    />
+                    <input
+                      name="precio"
                       type="number"
-                      placeholder="Costo por hora"
-                      defaultValue={gasto.costoXhora}
+                      placeholder="Precio"
+                      defaultValue={gasto.precio}
                       className="formulario"
                     />
                     <button type="submit" className="bot-guardar">Guardar</button>
@@ -202,7 +149,97 @@ function App() {
             <button className='agreProd' onClick={agregarGasto}>+</button>
           </div>
         </section>
+        {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------- */}
+        <section id="mano-obra">
+          <h1 className="section-title">Mano de obra</h1>
+          <div className='prod-container'>
+            {manos.map((mano) => (
+              <div key={mano.id} className='cont-prod'>
+                
+                {/* ❌ Botón para eliminar */}
+                <button
+                  className="bot-eliminar"
+                  onClick={() => eliminarMano(mano.id)}
+                >
+                  ✖
+                </button>
+
+                {mano.guardado ? (
+                  <div className="producto-info">
+                    <h3 className="producto-nombre">{mano.area || "(sin área)"}</h3>
+                    <p className="producto-data">Valor hora: ${mano.costoXhora || 0}</p>
+                    <p className="producto-data">Horas: {mano.cantHoras || 0}</p>
+                    <p className="producto-data">Días: {mano.cantDias || 0}</p>
+                    <p className="producto-data">Empleados: {mano.empleados || 0}</p>
+                    <p className="producto-data">Costo mensual: ${mano.empleados*mano.cantDias*mano.cantHoras*mano.costoXhora*4 || 0}</p>
+                    <div style={{ marginTop: 8 }}>
+                      <button type="button" onClick={() => editarMano(mano.id)} className="bot-guardar">
+                        Editar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form className="cont-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const area = e.target.area.value.trim();
+                      const costoXhora = e.target.costoXhora.value;
+                      const cantHoras = e.target.cantHoras.value;
+                      const cantDias = e.target.cantDias.value;
+                      const empleados = e.target.empleados.value;
+                      cargarMano(mano.id, area, costoXhora, cantHoras, cantDias, empleados);
+                    }}
+                  >
+                    <input
+                      name="area"
+                      type="text"
+                      placeholder="Área"
+                      defaultValue={mano.area}
+                      className="formulario"
+                    />
+                    <input
+                      name="costoXhora"
+                      type="number"
+                      placeholder="Costo por hora"
+                      defaultValue={mano.costoXhora}
+                      className="formulario"
+                    />
+                    <input
+                      name="cantHoras"
+                      type="number"
+                      placeholder="Cantidad de horas por día"
+                      defaultValue={mano.cantHoras}
+                      className="formulario"
+                    />
+                    <input
+                      name="cantDias"
+                      type="number"
+                      placeholder="Cantidad de días x semana"
+                      defaultValue={mano.cantDias}
+                      className="formulario"
+                    />
+                    <input
+                      name="empleados"
+                      type="number"
+                      placeholder="Cantidad de empleados"
+                      defaultValue={mano.empleados}
+                      className="formulario"
+                    />
+                    <button type="submit" className="bot-guardar">Guardar</button>
+                  </form>
+                )}
+              </div>
+            ))}
+            <button className='agreProd' onClick={agregarMano}>+</button>
+          </div>
+        </section>
+        {/* ----------------------------------------------------------------------------------- */}
       </div>
+
+      <footer>
+        <h1>Gastoico</h1>
+        <p>Contacto</p>
+      </footer>
     </div>
   );
 }
