@@ -1,0 +1,78 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 15px;
+  width: 400px; /* tamaño más grande */
+  max-width: 90%;
+  text-align: center;
+  position: relative;
+  animation: aparecer 0.3s ease;
+  z-index: 12;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Botón de cerrar */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  border: none;
+  background: white; /* fondo blanco */
+  font-size: 24px;
+  color: black;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: orange;
+}
+
+/* Inputs del modal */
+.modal input {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* Botones del formulario (login/registro) */
+.modal form button {
+  width: 100%;
+  background: #ffb347;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+.toggle-text {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.toggle-text span {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}

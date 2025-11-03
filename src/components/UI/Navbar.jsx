@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react';
+import { InicioSesion } from './Inicio-sesion.jsx';
 
 export const Navbar = () => {
+  const [showLogin, setShowLogin] = useState(false);
+
   return (
-    <header>
-        <a href="" className='cont-logo'>
+    <>
+      <header>
+        <a href="#" className='cont-logo'>
           <img src="/navbarLogo.png" alt="Logo Gastoico" className='logo' />
         </a>
         <a href='#productos' className='navbar'>Productos</a>
@@ -12,9 +16,13 @@ export const Navbar = () => {
         <a href='#materia-prima' className='navbar'>Materia prima</a>
         <a href='#impuestos' className='navbar'>Impuestos</a>
         <a href='#servicios' className='navbar'>Servicios</a>
-        <a href="" className='cont-login'>
-          <img src="/Login.png" alt="" className='login'/>
-        </a>
+
+        <div className='cont-login' onClick={() => setShowLogin(true)}>
+          <img src="/Login.png" alt="Login" className='login' />
+        </div>
       </header>
-  )
-}
+
+      {showLogin && <InicioSesion onClose={() => setShowLogin(false)} />}
+    </>
+  );
+};
