@@ -106,7 +106,7 @@ export const MateriaPrima = () => {
                   Tipo de unidad: {materiaPrima.tipoUnidad || "(vacío)"}
                 </p>
                 <p className="producto-data">
-                  Precio paquete: ${materiaPrima.precio || 0}
+                  Precio paquete: ${materiaPrima.precioXPaquete || 0}
                 </p>
                 <p className="producto-data">
                   Cantidad de paquetes: {materiaPrima.cantidadPaquetes || 0}
@@ -130,7 +130,7 @@ export const MateriaPrima = () => {
                   const tipo = e.target.tipo.value;
                   const unidadesXPaquete = e.target.unidadesXPaquete.value;
                   const tipoUnidad = e.target.tipoUnidad.value;
-                  const precio = e.target.precio.value;
+                  const precioXPaquete = e.target.precioXPaquete.value;
                   const cantidadPaquetes = e.target.cantidadPaquetes.value;
                   cargarMateriaPrima(
                     materiaPrima.id,
@@ -138,7 +138,7 @@ export const MateriaPrima = () => {
                     nombre,
                     unidadesXPaquete,
                     tipoUnidad,
-                    precio,
+                    precioXPaquete,
                     cantidadPaquetes
                   );
                 }}
@@ -180,10 +180,10 @@ export const MateriaPrima = () => {
                   <option value="Unidades">Unidades</option>
                 </select>
                 <input
-                  name="precio"
+                  name="precioXPaquete"
                   type="number"
                   placeholder="Precio"
-                  defaultValue={materiaPrima.precio}
+                  defaultValue={materiaPrima.precioXPaquete}
                   className="formulario"
                 />
                 <input

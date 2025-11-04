@@ -1,0 +1,188 @@
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 85px;
+}
+
+/* ====== HEADER GENERAL ====== */
+header {
+  height: 80px;
+  background: rgba(255, 240, 221, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid #00393d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2%;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ====== LOGO ====== */
+.cont-logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  max-width: 200px;
+}
+
+.logo {
+  height: 60%;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* ====== NAVBAR LINKS ====== */
+.nav-links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.navbar {
+  color: #00393d;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 18px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.navbar:hover {
+  background-color: #efac3b;
+  color: #fff0dd;
+}
+
+/* ====== LOGIN ====== */
+.cont-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 45px;
+  width: 45px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  color: #00393d;
+  cursor: pointer;
+}
+
+.login {
+  height: 45px;
+  width: 45px;
+}
+
+.cont-login:hover {
+  background-color: #efac3b;
+  color: #fff0dd;
+}
+
+/* ====== BOTÓN DE MENÚ ====== */
+.menu-toggle {
+  display: none;
+  background: #efac3b;
+  border: none;
+  color: #fff0dd;
+  font-size: 22px;
+  padding: 10px 0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.menu-toggle:hover {
+  background: #ffb347;
+}
+
+.menu-toggle.open .arrow {
+  transform: rotate(180deg);
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* ====== RESPONSIVE VERSION ====== */
+@media (max-width: 1100px) {
+  header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto;
+    padding: 15px 2% 10px;
+  }
+
+  /* Oculta los links del navbar */
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    background: rgba(255, 240, 221, 0.8);
+    backdrop-filter: blur(14px);
+    border: 2px solid rgba(0, 57, 61, 0.25);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    padding: 20px 0;
+    z-index: 20;
+    animation: fadeDown 0.3s ease forwards;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  @keyframes fadeDown {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -10px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  /* Botón ancho centrado */
+  .menu-toggle {
+    display: block;
+    width: 80%;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  /* Reacomoda login */
+  .cont-login {
+    position: absolute;
+    right: 20px;
+    top: 18px;
+  }
+
+  /* Asegura que el logo quede arriba */
+  .cont-logo {
+    align-self: flex-start;
+  }
+}
+
+
+/* ====== FIX LOGIN POSITION (DESKTOP) ====== */
+@media (min-width: 1101px) {
+  .cont-login {
+    position: static; /* vuelve a su flujo normal */
+    margin-left: auto; /* empuja hacia la derecha */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
