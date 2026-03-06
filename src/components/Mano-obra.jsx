@@ -1,3 +1,5 @@
+import { StableCard } from "./UI/StableCard.jsx";
+
 export const ManoObra = ({ manos, setManos }) => {
 
   const agregarMano = () => {
@@ -25,20 +27,34 @@ export const ManoObra = ({ manos, setManos }) => {
       <h1 className="section-title">Mano de obra</h1>
       <div className='prod-container'>
         {manos.map((mano) => (
-          <div key={mano.id} className='cont-prod'>
+          <StableCard key={mano.id}>
             <button className="bot-eliminar" onClick={() => eliminarMano(mano.id)}>✖</button>
 
             {mano.guardado ? (
               <div className="producto-info">
                 <h3 className="producto-nombre">{mano.area || "(sin área)"}</h3>
-                <p className="producto-data">Valor hora: ${mano.costoXhora || 0}</p>
-                <p className="producto-data">Horas: {mano.cantHoras || 0}</p>
-                <p className="producto-data">Días: {mano.cantDias || 0}</p>
-                <p className="producto-data">Empleados: {mano.empleados || 0}</p>
-                <p className="producto-data">Costo mensual: ${mano.empleados * mano.cantDias * mano.cantHoras * mano.costoXhora * 4 || 0}</p>
-                <div style={{ marginTop: 8 }}>
-                  <button type="button" onClick={() => editarMano(mano.id)} className="bot-guardar">Editar</button>
+                <hr className="prod-divider" />
+                <div className="info-row">
+                  <span className="info-label">Valor hora</span>
+                  <span className="info-val">${mano.costoXhora || 0}</span>
                 </div>
+                <div className="info-row">
+                  <span className="info-label">Horas / día</span>
+                  <span className="info-val">{mano.cantHoras || 0} hs</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Días / semana</span>
+                  <span className="info-val">{mano.cantDias || 0} días</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Empleados</span>
+                  <span className="info-val">{mano.empleados || 0}</span>
+                </div>
+                <div className="info-costo">
+                  <span className="info-costo-label">Costo mensual</span>
+                  <span className="info-costo-value">${parseFloat((mano.empleados * mano.cantDias * mano.cantHoras * mano.costoXhora * 4) || 0).toFixed(2)}</span>
+                </div>
+                <button type="button" onClick={() => editarMano(mano.id)} className="bot-guardar">Editar</button>
               </div>
             ) : (
               <form className="cont-form"
@@ -55,7 +71,7 @@ export const ManoObra = ({ manos, setManos }) => {
                 <button type="submit" className="bot-guardar">Guardar</button>
               </form>
             )}
-          </div>
+          </StableCard>
         ))}
         <button className='agreProd' onClick={agregarMano}>+</button>
       </div>

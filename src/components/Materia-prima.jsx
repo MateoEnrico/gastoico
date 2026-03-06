@@ -1,3 +1,5 @@
+import { StableCard } from "./UI/StableCard.jsx";
+
 export const MateriaPrima = ({ materiasPrimas, setMateriasPrimas }) => {
 
   const agregarMateriaPrima = () => {
@@ -25,20 +27,34 @@ export const MateriaPrima = ({ materiasPrimas, setMateriasPrimas }) => {
       <h1 className="section-title">Materias primas</h1>
       <div className="prod-container">
         {materiasPrimas.map((mp) => (
-          <div key={mp.id} className="cont-prod">
+          <StableCard key={mp.id}>
             <button className="bot-eliminar" onClick={() => eliminarMateriaPrima(mp.id)}>✖</button>
 
             {mp.guardado ? (
               <div className="producto-info">
                 <h3 className="producto-nombre">{mp.nombre || "(sin nombre)"}</h3>
-                <p className="producto-data">Tipo: {mp.tipo || "(sin tipo)"}</p>
-                <p className="producto-data">Unidades: {mp.unidadesXPaquete || 0}</p>
-                <p className="producto-data">Tipo de unidad: {mp.tipoUnidad || "(vacío)"}</p>
-                <p className="producto-data">Precio paquete: ${mp.precioXPaquete || 0}</p>
-                <p className="producto-data">Cantidad de paquetes: {mp.cantidadPaquetes || 0}</p>
-                <div style={{ marginTop: 8 }}>
-                  <button type="button" onClick={() => editarMateriaPrima(mp.id)} className="bot-guardar">Editar</button>
+                <hr className="prod-divider" />
+                <div className="info-row">
+                  <span className="info-label">Tipo</span>
+                  <span className="info-val">{mp.tipo || "—"}</span>
                 </div>
+                <div className="info-row">
+                  <span className="info-label">Unidades / paquete</span>
+                  <span className="info-val">{mp.unidadesXPaquete || 0} {mp.tipoUnidad || ""}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Precio paquete</span>
+                  <span className="info-val">${mp.precioXPaquete || 0}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Cant. paquetes</span>
+                  <span className="info-val">{mp.cantidadPaquetes || 0}</span>
+                </div>
+                <div className="info-costo">
+                  <span className="info-costo-label">Costo por unidad</span>
+                  <span className="info-costo-value">${mp.unidadesXPaquete ? parseFloat((mp.precioXPaquete / mp.unidadesXPaquete).toFixed(2)) : 0}</span>
+                </div>
+                <button type="button" onClick={() => editarMateriaPrima(mp.id)} className="bot-guardar">Editar</button>
               </div>
             ) : (
               <form className="cont-form"
@@ -64,7 +80,7 @@ export const MateriaPrima = ({ materiasPrimas, setMateriasPrimas }) => {
                 <button type="submit" className="bot-guardar" style={{ marginTop: 15 }}>Guardar</button>
               </form>
             )}
-          </div>
+          </StableCard>
         ))}
         <button className="agreProd" onClick={agregarMateriaPrima}>+</button>
       </div>

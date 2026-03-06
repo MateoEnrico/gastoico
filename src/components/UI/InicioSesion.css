@@ -1,78 +1,225 @@
+/* ====== OVERLAY ====== */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
+  inset: 0;
+  background: rgba(0, 20, 22, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ====== MODAL ====== */
 .modal {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 15px;
-  width: 400px; /* tamaño más grande */
-  max-width: 90%;
-  text-align: center;
+  background: rgba(0, 40, 44, 0.92);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(239, 172, 59, 0.22);
+  border-radius: 24px;
+  padding: 40px 36px 32px;
+  width: 400px;
+  max-width: 92vw;
   position: relative;
-  animation: aparecer 0.3s ease;
-  z-index: 12;
+  animation: slideUp 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(239, 172, 59, 0.10);
+  color: #fff0dd;
 }
 
-@keyframes aparecer {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)     scale(1);    }
 }
 
-/* Botón de cerrar */
+/* ====== CLOSE ====== */
 .close-btn {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  border: none;
-  background: white; /* fondo blanco */
-  font-size: 24px;
-  color: black;
+  top: 14px;
+  right: 14px;
+  background: rgba(255, 240, 221, 0.06);
+  border: 1px solid rgba(255, 240, 221, 0.14);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 240, 221, 0.5);
+  font-size: 13px;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
+  line-height: 1;
 }
 
 .close-btn:hover {
-  color: orange;
+  background: rgba(239, 172, 59, 0.18);
+  border-color: #efac3b;
+  color: #efac3b;
 }
 
-/* Inputs del modal */
-.modal input {
+/* ====== TITLE ====== */
+.modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff0dd;
+  margin-bottom: 24px;
+  letter-spacing: 0.2px;
+}
+
+/* ====== ALERTS ====== */
+.modal-error {
+  background: rgba(220, 50, 50, 0.15);
+  border: 1px solid rgba(220, 50, 50, 0.4);
+  border-radius: 10px;
+  color: #ff9a9a;
+  font-size: 13px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.modal-success {
+  background: rgba(50, 180, 100, 0.14);
+  border: 1px solid rgba(50, 180, 100, 0.35);
+  border-radius: 10px;
+  color: #7de8a8;
+  font-size: 13px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+/* ====== FORM ====== */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.modal-input {
   width: 100%;
-  margin: 8px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-/* Botones del formulario (login/registro) */
-.modal form button {
-  width: 100%;
-  background: #ffb347;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 12px;
-  font-weight: bold;
-}
-
-.toggle-text {
-  margin-top: 12px;
+  height: 44px;
+  background: rgba(255, 248, 236, 0.07);
+  border: 1.5px solid rgba(239, 172, 59, 0.28);
+  border-radius: 12px;
+  color: #fff0dd;
   font-size: 14px;
+  font-weight: 500;
+  padding: 0 15px;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.modal-input::placeholder {
+  color: rgba(255, 240, 221, 0.38);
+  font-weight: 400;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: #efac3b;
+  background: rgba(255, 248, 236, 0.11);
+  box-shadow: 0 0 0 3px rgba(239, 172, 59, 0.16);
+}
+
+/* ====== SUBMIT BUTTON ====== */
+.btn-inicio {
+  width: 100%;
+  height: 46px;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #00393d 0%, #005055 100%);
+  border: none;
+  border-radius: 13px;
+  color: #fff0dd;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: all 0.26s ease;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.btn-inicio:hover:not(:disabled) {
+  background: linear-gradient(135deg, #efac3b 0%, #d49828 100%);
+  color: #00393d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(239, 172, 59, 0.4);
+}
+
+.btn-inicio:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ====== DIVIDER ====== */
+.modal-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 16px;
+  color: rgba(255, 240, 221, 0.28);
+  font-size: 12px;
+}
+
+.modal-divider::before,
+.modal-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 240, 221, 0.14);
+}
+
+/* ====== GOOGLE BUTTON ====== */
+.btn-google {
+  width: 100%;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 13px;
+  color: rgba(255, 240, 221, 0.85);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.24s ease;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.btn-google:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #fff0dd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ====== TOGGLE TEXT ====== */
+.toggle-text {
+  margin-top: 22px;
+  font-size: 13px;
+  color: rgba(255, 240, 221, 0.42);
+  text-align: center;
 }
 
 .toggle-text span {
-  color: #007bff;
+  color: #efac3b;
   cursor: pointer;
-  text-decoration: underline;
+  font-weight: 600;
+  transition: opacity 0.18s ease;
+}
+
+.toggle-text span:hover {
+  opacity: 0.75;
 }

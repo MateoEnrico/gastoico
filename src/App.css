@@ -35,7 +35,7 @@ html {
   color: var(--dark);
   width: 100%;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ====== AURORA (manchas de fondo animadas) ====== */

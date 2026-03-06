@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { StableCard } from "./UI/StableCard.jsx";
 
 /* ─── Helpers ──────────────────────────────────────────────────────────────── */
 const findName = (arr, id, campo) =>
@@ -7,8 +8,8 @@ const findName = (arr, id, campo) =>
 const getLabels = (arr, ids, campo) =>
   (ids || []).map(id => findName(arr, id, campo)).filter(Boolean);
 
-const itemVacio = () => ({
-  id: Date.now(),
+export const itemVacioProducto = () => ({
+  id: String(Date.now()),
   nombre: "",
   precioVenta: "",
   cantidad: "",
@@ -16,6 +17,7 @@ const itemVacio = () => ({
   fijosSeleccionados: [],
   manoObraSeleccionada: [],
   manoVariableSeleccionada: [],
+  impuestosSeleccionados: [],
   precioCosto: 0,
   guardado: false,
 });
@@ -48,12 +50,13 @@ function ChipGroup({ label, items, selected, onToggle, nameField }) {
   );
 }
 
-/* ─── EditForm (se desmonta al guardar → estado se resetea naturalmente) ───── */
-function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, manoVariable }) {
-  const [selMP,    setSelMP]    = useState(producto.materiaPrimasSeleccionadas || []);
-  const [selFijos, setSelFijos] = useState(producto.fijosSeleccionados        || []);
-  const [selMano,  setSelMano]  = useState(producto.manoObraSeleccionada      || []);
-  const [selServ,  setSelServ]  = useState(producto.manoVariableSeleccionada  || []);
+/* ─── EditForm ──────────────────────────────────────────────────────────────── */
+function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, manoVariable, impuestos }) {
+  const [selMP,   setSelMP]   = useState(producto.materiaPrimasSeleccionadas || []);
+  const [selFijos,setSelFijos]= useState(producto.fijosSeleccionados        || []);
+  const [selMano, setSelMano] = useState(producto.manoObraSeleccionada      || []);
+  const [selServ, setSelServ] = useState(producto.manoVariableSeleccionada  || []);
+  const [selImp,  setSelImp]  = useState(producto.impuestosSeleccionados    || []);
 
   const toggle = (set) => (id) =>
     set(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -73,6 +76,7 @@ function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, 
           fijosSeleccionados:         selFijos,
           manoObraSeleccionada:       selMano,
           manoVariableSeleccionada:   selServ,
+          impuestosSeleccionados:     selImp,
           precioCosto:                0,
           guardado:                   false,
         });
@@ -108,9 +112,14 @@ function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, 
         selected={selMano} onToggle={toggle(setSelMano)} nameField="area"
       />
       <ChipGroup
-        label="Mano variable / Servicios"
+        label="Servicios"
         items={manoVariable.filter(s => s.guardado)}
         selected={selServ} onToggle={toggle(setSelServ)} nameField="nombre"
+      />
+      <ChipGroup
+        label="Impuestos"
+        items={impuestos.filter(i => i.guardado)}
+        selected={selImp} onToggle={toggle(setSelImp)} nameField="nombre"
       />
 
       <button type="submit" className="bot-guardar">Calcular y guardar</button>
@@ -119,12 +128,13 @@ function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, 
 }
 
 /* ─── SavedView ────────────────────────────────────────────────────────────── */
-function SavedView({ producto, onEditar, materiasPrimas, gastosFijos, manoObra, manoVariable }) {
+function SavedView({ producto, onEditar, materiasPrimas, gastosFijos, manoObra, manoVariable, impuestos }) {
   const sections = [
     { label: "Mat. primas",  ids: producto.materiaPrimasSeleccionadas, arr: materiasPrimas, campo: "nombre" },
     { label: "Gastos fijos", ids: producto.fijosSeleccionados,         arr: gastosFijos,   campo: "tipo"   },
     { label: "Mano de obra", ids: producto.manoObraSeleccionada,       arr: manoObra,      campo: "area"   },
-    { label: "M. variable",  ids: producto.manoVariableSeleccionada,   arr: manoVariable,  campo: "nombre" },
+    { label: "Servicios",    ids: producto.manoVariableSeleccionada,   arr: manoVariable,  campo: "nombre" },
+    { label: "Impuestos",    ids: producto.impuestosSeleccionados,     arr: impuestos,     campo: "nombre" },
   ];
 
   return (
@@ -169,35 +179,39 @@ function SavedView({ producto, onEditar, materiasPrimas, gastosFijos, manoObra, 
 }
 
 /* ─── ProductoCard ─────────────────────────────────────────────────────────── */
-function ProductoCard({ producto, onGuardar, onEditar, onEliminar, materiasPrimas, gastosFijos, manoObra, manoVariable }) {
+function ProductoCard({ producto, onGuardar, onEditar, onEliminar, materiasPrimas, gastosFijos, manoObra, manoVariable, impuestos }) {
   return (
-    <div className="cont-prod">
+    <StableCard>
       <button className="bot-eliminar" onClick={() => onEliminar(producto.id)}>✕</button>
       {producto.guardado ? (
         <SavedView
           producto={producto} onEditar={onEditar}
           materiasPrimas={materiasPrimas} gastosFijos={gastosFijos}
           manoObra={manoObra} manoVariable={manoVariable}
+          impuestos={impuestos}
         />
       ) : (
         <EditForm
           producto={producto} onGuardar={onGuardar}
           materiasPrimas={materiasPrimas} gastosFijos={gastosFijos}
           manoObra={manoObra} manoVariable={manoVariable}
+          impuestos={impuestos}
         />
       )}
-    </div>
+    </StableCard>
   );
 }
 
 /* ─── Producto (componente raíz de la sección) ─────────────────────────────── */
 export const Producto = ({
+  productos      = [],
+  setProductos,
   materiasPrimas = [],
   gastosFijos    = [],
   manoObra       = [],
   manoVariable   = [],
+  impuestos      = [],
 }) => {
-  const [productos, setProductos] = useState([itemVacio()]);
 
   const calcularPrecioCosto = (data, cantidad) => {
     let costo = 0;
@@ -234,16 +248,25 @@ export const Producto = ({
       }
     });
 
+    const precioVenta = parseFloat(data.precioVenta) || 0;
+    (data.impuestosSeleccionados || []).forEach(id => {
+      const imp = impuestos.find(i => String(i.id) === String(id));
+      if (imp) {
+        const v = (parseFloat(imp.porcentaje) / 100) * precioVenta;
+        costo += isNaN(v) ? 0 : v;
+      }
+    });
+
     return parseFloat(costo.toFixed(2));
   };
 
   const guardarProducto = (id, data) => {
-    const cantidad     = parseFloat(data.cantidad) || 1;
-    const precioCosto  = calcularPrecioCosto(data, cantidad);
+    const cantidad    = parseFloat(data.cantidad) || 1;
+    const precioCosto = calcularPrecioCosto(data, cantidad);
     setProductos(prev => prev.map(p => p.id === id ? { ...data, precioCosto, guardado: true } : p));
   };
 
-  const editarProducto  = (id) => setProductos(prev => prev.map(p => p.id === id ? { ...p, guardado: false } : p));
+  const editarProducto   = (id) => setProductos(prev => prev.map(p => p.id === id ? { ...p, guardado: false } : p));
   const eliminarProducto = (id) => setProductos(prev => prev.filter(p => p.id !== id));
 
   return (
@@ -261,9 +284,10 @@ export const Producto = ({
             gastosFijos={gastosFijos}
             manoObra={manoObra}
             manoVariable={manoVariable}
+            impuestos={impuestos}
           />
         ))}
-        <button className="agreProd" onClick={() => setProductos(prev => [...prev, itemVacio()])}>+</button>
+        <button className="agreProd" onClick={() => setProductos(prev => [...prev, itemVacioProducto()])}>+</button>
       </div>
     </>
   );

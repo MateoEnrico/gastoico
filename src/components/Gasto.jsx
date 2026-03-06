@@ -1,3 +1,5 @@
+import { StableCard } from "./UI/StableCard.jsx";
+
 export const Gasto = ({ gastos, setGastos }) => {
 
   const agregarGasto = () => {
@@ -25,17 +27,22 @@ export const Gasto = ({ gastos, setGastos }) => {
       <h1 className="section-title">Gastos fijos</h1>
       <div className='prod-container'>
         {gastos.map((gasto) => (
-          <div key={gasto.id} className='cont-prod'>
+          <StableCard key={gasto.id}>
             <button className="bot-eliminar" onClick={() => eliminarGasto(gasto.id)}>✖</button>
 
             {gasto.guardado ? (
               <div className="producto-info">
                 <h3 className="producto-nombre">{gasto.tipo || "(sin nombre)"}</h3>
-                <p className="producto-data">Mes: {gasto.mes || "(sin mes)"}</p>
-                <p className="producto-data">Precio: ${gasto.precio || 0}</p>
-                <div style={{ marginTop: 8 }}>
-                  <button type="button" onClick={() => editarGasto(gasto.id)} className="bot-guardar">Editar</button>
+                <hr className="prod-divider" />
+                <div className="info-row">
+                  <span className="info-label">Mes de cobro</span>
+                  <span className="info-val">{gasto.mes || "—"}</span>
                 </div>
+                <div className="info-costo">
+                  <span className="info-costo-label">Precio mensual</span>
+                  <span className="info-costo-value">${gasto.precio || 0}</span>
+                </div>
+                <button type="button" onClick={() => editarGasto(gasto.id)} className="bot-guardar">Editar</button>
               </div>
             ) : (
               <form className="cont-form"
@@ -50,7 +57,7 @@ export const Gasto = ({ gastos, setGastos }) => {
                 <button type="submit" className="bot-guardar">Guardar</button>
               </form>
             )}
-          </div>
+          </StableCard>
         ))}
         <button className='agreProd' onClick={agregarGasto}>+</button>
       </div>

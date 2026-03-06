@@ -1,3 +1,5 @@
+import { StableCard } from "./UI/StableCard.jsx";
+
 export const Servicios = ({ servicios, setServicios }) => {
 
   const agregarServicio = () => {
@@ -23,18 +25,30 @@ export const Servicios = ({ servicios, setServicios }) => {
       <h1 className="section-title">Servicios</h1>
       <div className='prod-container'>
         {servicios.map((serv) => (
-          <div key={serv.id} className='cont-prod'>
+          <StableCard key={serv.id}>
             <button className="bot-eliminar" onClick={() => eliminarServicio(serv.id)}>✖</button>
 
             {serv.guardado ? (
               <div className="producto-info">
                 <h3 className="producto-nombre">{serv.nombre || "(sin nombre)"}</h3>
-                <p className="producto-data">Unidad: {serv.unidad || "(sin unidad)"}</p>
-                <p className="producto-data">Cantidad: {serv.cantidadUni || 0}</p>
-                <p className="producto-data">Precio x unidad: ${serv.precioXUni || 0}</p>
-                <div style={{ marginTop: 8 }}>
-                  <button type="button" onClick={() => editarServicio(serv.id)} className="bot-guardar">Editar</button>
+                <hr className="prod-divider" />
+                <div className="info-row">
+                  <span className="info-label">Unidad</span>
+                  <span className="info-val">{serv.unidad || "—"}</span>
                 </div>
+                <div className="info-row">
+                  <span className="info-label">Cantidad</span>
+                  <span className="info-val">{serv.cantidadUni || 0}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Precio / unidad</span>
+                  <span className="info-val">${serv.precioXUni || 0}</span>
+                </div>
+                <div className="info-costo">
+                  <span className="info-costo-label">Total</span>
+                  <span className="info-costo-value">${parseFloat((serv.cantidadUni * serv.precioXUni) || 0).toFixed(2)}</span>
+                </div>
+                <button type="button" onClick={() => editarServicio(serv.id)} className="bot-guardar">Editar</button>
               </div>
             ) : (
               <form className="cont-form"
@@ -55,7 +69,7 @@ export const Servicios = ({ servicios, setServicios }) => {
                 <button type="submit" className="bot-guardar">Guardar</button>
               </form>
             )}
-          </div>
+          </StableCard>
         ))}
         <button className='agreProd' onClick={agregarServicio}>+</button>
       </div>
