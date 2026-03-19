@@ -12,6 +12,7 @@ export const itemVacioProducto = () => ({
   id: String(Date.now()),
   nombre: "",
   precioVenta: "",
+  gananciaDeseada: "",
   cantidad: "",
   materiaPrimasSeleccionadas: [],
   fijosSeleccionados: [],
@@ -52,11 +53,11 @@ function ChipGroup({ label, items, selected, onToggle, nameField }) {
 
 /* ─── EditForm ──────────────────────────────────────────────────────────────── */
 function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, manoVariable, impuestos }) {
-  const [selMP,   setSelMP]   = useState(producto.materiaPrimasSeleccionadas || []);
-  const [selFijos,setSelFijos]= useState(producto.fijosSeleccionados        || []);
-  const [selMano, setSelMano] = useState(producto.manoObraSeleccionada      || []);
-  const [selServ, setSelServ] = useState(producto.manoVariableSeleccionada  || []);
-  const [selImp,  setSelImp]  = useState(producto.impuestosSeleccionados    || []);
+  const [selMP, setSelMP] = useState(producto.materiaPrimasSeleccionadas || []);
+  const [selFijos, setSelFijos] = useState(producto.fijosSeleccionados || []);
+  const [selMano, setSelMano] = useState(producto.manoObraSeleccionada || []);
+  const [selServ, setSelServ] = useState(producto.manoVariableSeleccionada || []);
+  const [selImp, setSelImp] = useState(producto.impuestosSeleccionados || []);
 
   const toggle = (set) => (id) =>
     set(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -68,33 +69,52 @@ function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, 
         e.preventDefault();
         const fd = new FormData(e.target);
         onGuardar(producto.id, {
-          id:                         producto.id,
-          nombre:                     fd.get("nombre"),
-          precioVenta:                fd.get("precioVenta"),
-          cantidad:                   fd.get("cantidad"),
+          id: producto.id,
+          nombre: fd.get("nombre"),
+          precioVenta: fd.get("precioVenta"),
+          gananciaDeseada: fd.get("gananciaDeseada"),
+          cantidad: fd.get("cantidad"),
           materiaPrimasSeleccionadas: selMP,
-          fijosSeleccionados:         selFijos,
-          manoObraSeleccionada:       selMano,
-          manoVariableSeleccionada:   selServ,
-          impuestosSeleccionados:     selImp,
-          precioCosto:                0,
-          guardado:                   false,
+          fijosSeleccionados: selFijos,
+          manoObraSeleccionada: selMano,
+          manoVariableSeleccionada: selServ,
+          impuestosSeleccionados: selImp,
+          precioCosto: 0,
+          guardado: false,
         });
       }}
     >
-      <input
-        name="nombre" type="text" placeholder="Nombre del producto"
-        defaultValue={producto.nombre} className="formulario"
-        style={{ marginTop: 0 }}
-      />
-      <input
-        name="precioVenta" type="number" placeholder="Precio de venta ($)"
-        defaultValue={producto.precioVenta} className="formulario"
-      />
-      <input
-        name="cantidad" type="number" placeholder="Unidades producidas / mes"
-        defaultValue={producto.cantidad} className="formulario"
-      />
+      <div className="form-group-relative">
+        <input
+          name="nombre" type="text" placeholder="Nombre (Ej: Torta de Chocolate)"
+          defaultValue={producto.nombre} className="formulario" required
+          style={{ marginTop: 0 }}
+        />
+      </div>
+      <div className="form-group-relative">
+        <input
+          name="cantidad" type="number" step="any" placeholder="Unidades producidas / mes"
+          defaultValue={producto.cantidad} className="formulario" required
+        />
+        <span className="help-icon" data-tooltip="Cuántas unidades de esto vas a producir y vender en el mes para diluir los gastos fijos.">?</span>
+      </div>
+
+      <div className="split-row">
+        <div className="split-field">
+          <input
+            name="gananciaDeseada" type="number" step="any" placeholder="% Rentabilidad"
+            defaultValue={producto.gananciaDeseada} className="formulario"
+          />
+          <span className="help-icon" data-tooltip="Opcional. Si ponés el % acá, el sistema calcula el precio de venta por vos.">?</span>
+        </div>
+        <div className="split-field">
+          <input
+            name="precioVenta" type="number" step="any" placeholder="Precio Final ($)"
+            defaultValue={producto.precioVenta} className="formulario"
+          />
+          <span className="help-icon" data-tooltip="Opcional. Cuánto vas a cobrarle a tus clientes finales.">?</span>
+        </div>
+      </div>
 
       <ChipGroup
         label="Materias primas"
@@ -130,25 +150,28 @@ function EditForm({ producto, onGuardar, materiasPrimas, gastosFijos, manoObra, 
 /* ─── SavedView ────────────────────────────────────────────────────────────── */
 function SavedView({ producto, onEditar, materiasPrimas, gastosFijos, manoObra, manoVariable, impuestos }) {
   const sections = [
-    { label: "Mat. primas",  ids: producto.materiaPrimasSeleccionadas, arr: materiasPrimas, campo: "nombre" },
-    { label: "Gastos fijos", ids: producto.fijosSeleccionados,         arr: gastosFijos,   campo: "tipo"   },
-    { label: "Mano de obra", ids: producto.manoObraSeleccionada,       arr: manoObra,      campo: "area"   },
-    { label: "Servicios",    ids: producto.manoVariableSeleccionada,   arr: manoVariable,  campo: "nombre" },
-    { label: "Impuestos",    ids: producto.impuestosSeleccionados,     arr: impuestos,     campo: "nombre" },
+    { label: "Mat. primas", ids: producto.materiaPrimasSeleccionadas, arr: materiasPrimas, campo: "nombre" },
+    { label: "Gastos fijos", ids: producto.fijosSeleccionados, arr: gastosFijos, campo: "tipo" },
+    { label: "Mano de obra", ids: producto.manoObraSeleccionada, arr: manoObra, campo: "area" },
+    { label: "Servicios", ids: producto.manoVariableSeleccionada, arr: manoVariable, campo: "nombre" },
+    { label: "Impuestos", ids: producto.impuestosSeleccionados, arr: impuestos, campo: "nombre" },
   ];
 
   return (
     <div className="producto-info">
       <h3 className="producto-nombre">{producto.nombre || "(sin nombre)"}</h3>
       <hr className="prod-divider" />
-
-      <div className="info-row">
-        <span className="info-label">Precio venta</span>
-        <span className="info-val">${producto.precioVenta || 0}</span>
-      </div>
       <div className="info-row">
         <span className="info-label">Cantidad / mes</span>
         <span className="info-val">{producto.cantidad || 0} und.</span>
+      </div>
+      <div className="info-row">
+        <span className="info-label">Margen ganancia</span>
+        <span className="info-val">{producto.gananciaDeseada ? `${producto.gananciaDeseada}%` : "—"}</span>
+      </div>
+      <div className="info-row" style={{ marginTop: '8px', borderTop: '1px dashed rgba(239, 172, 59, 0.2)', paddingTop: '8px' }}>
+        <span className="info-label" style={{ color: 'var(--light)' }}>Precio ideal/venta</span>
+        <span className="info-val" style={{ fontSize: '18px' }}>${producto.precioVenta || 0}</span>
       </div>
 
       {sections.map(({ label, ids, arr, campo }) => {
@@ -171,21 +194,23 @@ function SavedView({ producto, onEditar, materiasPrimas, gastosFijos, manoObra, 
         <span className="info-costo-value">${producto.precioCosto}</span>
       </div>
 
-      <button type="button" className="bot-guardar" onClick={() => onEditar(producto.id)}>
-        Editar
-      </button>
+      {!producto.isReadOnly && (
+        <button type="button" className="bot-guardar" onClick={() => onEditar(producto.id)}>
+          Editar
+        </button>
+      )}
     </div>
   );
 }
 
 /* ─── ProductoCard ─────────────────────────────────────────────────────────── */
-function ProductoCard({ producto, onGuardar, onEditar, onEliminar, materiasPrimas, gastosFijos, manoObra, manoVariable, impuestos }) {
+function ProductoCard({ producto, onGuardar, onEditar, onEliminar, materiasPrimas, gastosFijos, manoObra, manoVariable, impuestos, isReadOnly }) {
   return (
     <StableCard>
-      <button className="bot-eliminar" onClick={() => onEliminar(producto.id)}>✕</button>
+      {!isReadOnly && <button className="bot-eliminar" onClick={() => onEliminar(producto.id)}>✕</button>}
       {producto.guardado ? (
         <SavedView
-          producto={producto} onEditar={onEditar}
+          producto={{ ...producto, isReadOnly }} onEditar={onEditar}
           materiasPrimas={materiasPrimas} gastosFijos={gastosFijos}
           manoObra={manoObra} manoVariable={manoVariable}
           impuestos={impuestos}
@@ -204,13 +229,15 @@ function ProductoCard({ producto, onGuardar, onEditar, onEliminar, materiasPrima
 
 /* ─── Producto (componente raíz de la sección) ─────────────────────────────── */
 export const Producto = ({
-  productos      = [],
+  productos = [],
   setProductos,
   materiasPrimas = [],
-  gastosFijos    = [],
-  manoObra       = [],
-  manoVariable   = [],
-  impuestos      = [],
+  gastosFijos = [],
+  manoObra = [],
+  manoVariable = [],
+  impuestos = [],
+  isReadOnly,
+  onRequireLogin
 }) => {
 
   const calcularPrecioCosto = (data, cantidad) => {
@@ -261,17 +288,40 @@ export const Producto = ({
   };
 
   const guardarProducto = (id, data) => {
-    const cantidad    = parseFloat(data.cantidad) || 1;
+    if (onRequireLogin && onRequireLogin()) return;
+    const cantidad = parseFloat(data.cantidad) || 1;
     const precioCosto = calcularPrecioCosto(data, cantidad);
-    setProductos(prev => prev.map(p => p.id === id ? { ...data, precioCosto, guardado: true } : p));
+
+    // Calcular ganancia / precio venta automático
+    let pVenta = parseFloat(data.precioVenta);
+    const gDeseada = parseFloat(data.gananciaDeseada);
+
+    // Si escribió un precio de venta manual, se respeta ese.
+    // Pero si no puso precio de venta Y puso ganancia, se calcula solo.
+    if (isNaN(pVenta) && !isNaN(gDeseada)) {
+      pVenta = precioCosto * (1 + (gDeseada / 100));
+    }
+
+    // Limpiamos NaN a string vacío si la persona dejó todo vacío.
+    const pVentaFinal = isNaN(pVenta) ? "" : pVenta.toFixed(2);
+
+    setProductos(prev => prev.map(p => p.id === id ? {
+      ...data,
+      precioCosto,
+      precioVenta: pVentaFinal,
+      guardado: true
+    } : p));
   };
 
-  const editarProducto   = (id) => setProductos(prev => prev.map(p => p.id === id ? { ...p, guardado: false } : p));
+  const editarProducto = (id) => setProductos(prev => prev.map(p => p.id === id ? { ...p, guardado: false } : p));
   const eliminarProducto = (id) => setProductos(prev => prev.filter(p => p.id !== id));
 
   return (
     <>
-      <h1 className="section-title">Productos</h1>
+      <h1 className="section-title">
+        Productos
+        <span className="help-icon" data-tooltip="Agregá tus productos finales aquí. Completá con sus recetas y asigná una cantidad estimada mensual para prorratear los costos fijos." style={{ width: '22px', height: '22px', fontSize: '14px', marginLeft: '12px' }}>?</span>
+      </h1>
       <div className="prod-container">
         {productos.map(producto => (
           <ProductoCard
@@ -285,9 +335,10 @@ export const Producto = ({
             manoObra={manoObra}
             manoVariable={manoVariable}
             impuestos={impuestos}
+            isReadOnly={isReadOnly}
           />
         ))}
-        <button className="agreProd" onClick={() => setProductos(prev => [...prev, itemVacioProducto()])}>+</button>
+        <button className="agreProd" onClick={() => setProductos(prev => [...prev, itemVacioProducto()])} disabled={isReadOnly}>+</button>
       </div>
     </>
   );

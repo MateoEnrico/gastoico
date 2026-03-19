@@ -1,12 +1,13 @@
 import { StableCard } from "./UI/StableCard.jsx";
 
-export const Impuestos = ({ impuestos, setImpuestos }) => {
+export const Impuestos = ({ impuestos, setImpuestos, isReadOnly, onRequireLogin }) => {
 
   const agregarImpuesto = () => {
     setImpuestos([...impuestos, { id: String(Date.now()), nombre: '', porcentaje: '', guardado: false }]);
   };
 
   const guardarImpuesto = (id, nombre, porcentaje) => {
+    if (onRequireLogin && onRequireLogin()) return;
     setImpuestos(impuestos.map(i =>
       i.id === id ? { ...i, nombre, porcentaje, guardado: true } : i
     ));
@@ -22,11 +23,14 @@ export const Impuestos = ({ impuestos, setImpuestos }) => {
 
   return (
     <>
-      <h1 className="section-title">Impuestos</h1>
+      <h1 className="section-title">
+        Impuestos
+        <span className="help-icon" data-tooltip="Porcentajes adicionales que se le suman directamente al precio final (Ej: IVA del 21%)." style={{ width: '22px', height: '22px', fontSize: '14px', marginLeft: '12px' }}>?</span>
+      </h1>
       <div className="prod-container">
         {impuestos.map((imp) => (
           <StableCard key={imp.id}>
-            <button className="bot-eliminar" onClick={() => eliminarImpuesto(imp.id)}>✕</button>
+            {!isReadOnly && <button className="bot-eliminar" onClick={() => eliminarImpuesto(imp.id)}>✕</button>}
 
             {imp.guardado ? (
               <div className="producto-info">
@@ -36,7 +40,7 @@ export const Impuestos = ({ impuestos, setImpuestos }) => {
                   <span className="info-costo-label">Porcentaje sobre venta</span>
                   <span className="info-costo-value">{imp.porcentaje || 0}%</span>
                 </div>
-                <button type="button" onClick={() => editarImpuesto(imp.id)} className="bot-guardar">Editar</button>
+                {!isReadOnly && <button type="button" onClick={() => editarImpuesto(imp.id)} className="bot-guardar">Editar</button>}
               </div>
             ) : (
               <form className="cont-form"
@@ -45,14 +49,19 @@ export const Impuestos = ({ impuestos, setImpuestos }) => {
                   guardarImpuesto(imp.id, e.target.nombre.value.trim(), e.target.porcentaje.value);
                 }}
               >
-                <input name="nombre" type="text" placeholder="Nombre del impuesto" defaultValue={imp.nombre} className="formulario" />
-                <input name="porcentaje" type="number" placeholder="Porcentaje (%)" defaultValue={imp.porcentaje} className="formulario" />
+                <div className="form-group-relative">
+                  <input name="nombre" type="text" placeholder="Nombre (Ej: IVA)" defaultValue={imp.nombre} className="formulario" required />
+                </div>
+                <div className="form-group-relative">
+                  <input name="porcentaje" type="number" step="any" placeholder="Porcentaje (%)" defaultValue={imp.porcentaje} className="formulario" required />
+                  <span className="help-icon" data-tooltip="Ej: Si es el 21% de IVA, tipeá solo 21. Ese % se le suma al precio final de venta.">?</span>
+                </div>
                 <button type="submit" className="bot-guardar">Guardar</button>
               </form>
             )}
           </StableCard>
         ))}
-        <button className="agreProd" onClick={agregarImpuesto}>+</button>
+        <button className="agreProd" onClick={agregarImpuesto} disabled={isReadOnly}>+</button>
       </div>
     </>
   );

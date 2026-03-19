@@ -28,19 +28,31 @@ header {
 .cont-logo {
   display: flex;
   align-items: center;
-  height: 100%;
+  justify-content: center;
   text-decoration: none;
+  background: rgba(255, 248, 236, 0.95); /* Fondo claro estilo "píldora" */
+  padding: 6px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(239, 172, 59, 0.3); /* Borde sutil acentuado */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.28s ease;
+}
+
+.cont-logo:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  border-color: #efac3b;
+  box-shadow: 0 6px 20px rgba(239, 172, 59, 0.35);
 }
 
 .logo {
-  height: 54%;
+  height: 32px; /* Tamaño adaptado para entrar dentro de la píldora */
   width: auto;
-  transition: transform 0.28s ease, filter 0.28s ease;
+  transition: transform 0.28s ease;
 }
 
 .logo:hover {
-  transform: scale(1.07);
-  filter: drop-shadow(0 0 8px rgba(239, 172, 59, 0.5));
+  transform: scale(1.04);
 }
 
 /* ====== NAV LINKS ====== */
@@ -76,20 +88,21 @@ header {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1.5px solid rgba(239, 172, 59, 0.32);
-  background: rgba(239, 172, 59, 0.1);
+  border: 1px solid rgba(239, 172, 59, 0.3);
+  background: rgba(255, 248, 236, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.24s ease;
   overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .cont-login:hover {
-  background: rgba(239, 172, 59, 0.24);
+  background: #ffffff;
   border-color: #efac3b;
-  box-shadow: 0 0 20px rgba(239, 172, 59, 0.32);
+  box-shadow: 0 6px 15px rgba(239, 172, 59, 0.35);
   transform: scale(1.1);
 }
 
@@ -97,6 +110,8 @@ header {
   height: 26px;
   width: 26px;
   object-fit: contain;
+  /* Transformamos el color a dark (#00393d) para que resalte sobre el fondo claro */
+  filter: brightness(0) saturate(100%) invert(17%) sepia(31%) saturate(3033%) hue-rotate(167deg) brightness(93%) contrast(101%);
 }
 
 /* ====== BOTÓN HAMBURGUESA ====== */
@@ -205,9 +220,9 @@ header {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1.5px solid rgba(239, 172, 59, 0.55);
-  background: linear-gradient(135deg, #005055 0%, #00393d 100%);
-  color: #efac3b;
+  border: 1px solid rgba(239, 172, 59, 0.3);
+  background: rgba(255, 248, 236, 0.95);
+  color: #00393d;
   font-size: 16px;
   font-weight: 800;
   cursor: pointer;
@@ -217,11 +232,13 @@ header {
   transition: all 0.24s ease;
   font-family: "Poppins", "Segoe UI", sans-serif;
   flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .user-avatar:hover {
+  background: #ffffff;
   border-color: #efac3b;
-  box-shadow: 0 0 18px rgba(239, 172, 59, 0.35);
+  box-shadow: 0 6px 15px rgba(239, 172, 59, 0.35);
   transform: scale(1.08);
 }
 

@@ -1,12 +1,13 @@
 import { StableCard } from "./UI/StableCard.jsx";
 
-export const ManoObra = ({ manos, setManos }) => {
+export const ManoObra = ({ manos, setManos, isReadOnly, onRequireLogin }) => {
 
   const agregarMano = () => {
     setManos([...manos, { id: Date.now(), area: '', costoXhora: '', cantHoras: '', cantDias: '', empleados: '', guardado: false }]);
   };
 
   const cargarMano = (id, area, costoXhora, cantHoras, cantDias, empleados) => {
+    if (onRequireLogin && onRequireLogin()) return;
     setManos(manos.map(p =>
       p.id === id ? { ...p, area, costoXhora, cantHoras, cantDias, empleados, guardado: true } : p
     ));
@@ -24,11 +25,14 @@ export const ManoObra = ({ manos, setManos }) => {
 
   return (
     <>
-      <h1 className="section-title">Mano de obra</h1>
+      <h1 className="section-title">
+        Mano de obra
+        <span className="help-icon" data-tooltip="Calculá cuánto vale el tiempo y esfuerzo dedicado a producir (incluso tu propio tiempo)." style={{ width: '22px', height: '22px', fontSize: '14px', marginLeft: '12px' }}>?</span>
+      </h1>
       <div className='prod-container'>
         {manos.map((mano) => (
           <StableCard key={mano.id}>
-            <button className="bot-eliminar" onClick={() => eliminarMano(mano.id)}>✖</button>
+            {!isReadOnly && <button className="bot-eliminar" onClick={() => eliminarMano(mano.id)}>✖</button>}
 
             {mano.guardado ? (
               <div className="producto-info">
@@ -54,7 +58,7 @@ export const ManoObra = ({ manos, setManos }) => {
                   <span className="info-costo-label">Costo mensual</span>
                   <span className="info-costo-value">${parseFloat((mano.empleados * mano.cantDias * mano.cantHoras * mano.costoXhora * 4) || 0).toFixed(2)}</span>
                 </div>
-                <button type="button" onClick={() => editarMano(mano.id)} className="bot-guardar">Editar</button>
+                {!isReadOnly && <button type="button" onClick={() => editarMano(mano.id)} className="bot-guardar">Editar</button>}
               </div>
             ) : (
               <form className="cont-form"
@@ -63,17 +67,28 @@ export const ManoObra = ({ manos, setManos }) => {
                   cargarMano(mano.id, e.target.area.value.trim(), e.target.costoXhora.value, e.target.cantHoras.value, e.target.cantDias.value, e.target.empleados.value);
                 }}
               >
-                <input name="area" type="text" placeholder="Área" defaultValue={mano.area} className="formulario" />
-                <input name="costoXhora" type="number" placeholder="Costo por hora" defaultValue={mano.costoXhora} className="formulario" />
-                <input name="cantHoras" type="number" placeholder="Cantidad de horas por día" defaultValue={mano.cantHoras} className="formulario" />
-                <input name="cantDias" type="number" placeholder="Cantidad de días x semana" defaultValue={mano.cantDias} className="formulario" />
-                <input name="empleados" type="number" placeholder="Cantidad de empleados" defaultValue={mano.empleados} className="formulario" />
+                <div className="form-group-relative">
+                  <input name="area" type="text" placeholder="Área (Ej: Producción)" defaultValue={mano.area} className="formulario" required />
+                </div>
+                <div className="form-group-relative">
+                  <input name="costoXhora" type="number" step="any" placeholder="Costo por hora ($)" defaultValue={mano.costoXhora} className="formulario" required />
+                  <span className="help-icon" data-tooltip="Cuánto le pagás por hora. Si sos vos, imaginá cuánto te gustaría ganar de sueldo y dividilo por las horas que trabajás en el mes.">?</span>
+                </div>
+                <div className="form-group-relative">
+                  <input name="cantHoras" type="number" step="any" placeholder="Cant. horas diarias" defaultValue={mano.cantHoras} className="formulario" required />
+                </div>
+                <div className="form-group-relative">
+                  <input name="cantDias" type="number" step="any" placeholder="Días trabajados x semana" defaultValue={mano.cantDias} className="formulario" required />
+                </div>
+                <div className="form-group-relative">
+                  <input name="empleados" type="number" step="any" placeholder="Cantidad de empleados" defaultValue={mano.empleados} className="formulario" required />
+                </div>
                 <button type="submit" className="bot-guardar">Guardar</button>
               </form>
             )}
           </StableCard>
         ))}
-        <button className='agreProd' onClick={agregarMano}>+</button>
+        <button className='agreProd' onClick={agregarMano} disabled={isReadOnly}>+</button>
       </div>
     </>
   );

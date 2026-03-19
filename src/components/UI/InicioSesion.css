@@ -19,10 +19,10 @@
 
 /* ====== MODAL ====== */
 .modal {
-  background: rgba(0, 40, 44, 0.92);
+  background: rgba(255, 248, 236, 0.92); /* Fondo píldora invertido/claro */
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(239, 172, 59, 0.22);
+  border: 1px solid rgba(239, 172, 59, 0.35); /* Borde acentuado más visible */
   border-radius: 24px;
   padding: 40px 36px 32px;
   width: 400px;
@@ -30,9 +30,9 @@
   position: relative;
   animation: slideUp 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
   box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(239, 172, 59, 0.10);
-  color: #fff0dd;
+    0 24px 80px rgba(0, 30, 33, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: #00393d; /* Texto oscuro */
 }
 
 @keyframes slideUp {
@@ -45,15 +45,15 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  background: rgba(255, 240, 221, 0.06);
-  border: 1px solid rgba(255, 240, 221, 0.14);
+  background: rgba(0, 57, 61, 0.06);
+  border: 1px solid rgba(0, 57, 61, 0.12);
   border-radius: 50%;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 240, 221, 0.5);
+  color: #00393d;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -70,7 +70,7 @@
 .modal-title {
   font-size: 22px;
   font-weight: 800;
-  color: #fff0dd;
+  color: #00393d;
   margin-bottom: 24px;
   letter-spacing: 0.2px;
 }
@@ -108,10 +108,10 @@
 .modal-input {
   width: 100%;
   height: 44px;
-  background: rgba(255, 248, 236, 0.07);
-  border: 1.5px solid rgba(239, 172, 59, 0.28);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid rgba(239, 172, 59, 0.35);
   border-radius: 12px;
-  color: #fff0dd;
+  color: #00393d;
   font-size: 14px;
   font-weight: 500;
   padding: 0 15px;
@@ -120,15 +120,15 @@
 }
 
 .modal-input::placeholder {
-  color: rgba(255, 240, 221, 0.38);
+  color: rgba(0, 57, 61, 0.45);
   font-weight: 400;
 }
 
 .modal-input:focus {
   outline: none;
   border-color: #efac3b;
-  background: rgba(255, 248, 236, 0.11);
-  box-shadow: 0 0 0 3px rgba(239, 172, 59, 0.16);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 3px rgba(239, 172, 59, 0.2);
 }
 
 /* ====== SUBMIT BUTTON ====== */
@@ -146,17 +146,18 @@
   cursor: pointer;
   transition: all 0.26s ease;
   font-family: "Poppins", "Segoe UI", sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 57, 61, 0.2);
 }
 
 .btn-inicio:hover:not(:disabled) {
   background: linear-gradient(135deg, #efac3b 0%, #d49828 100%);
   color: #00393d;
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(239, 172, 59, 0.4);
+  box-shadow: 0 6px 20px rgba(239, 172, 59, 0.35);
 }
 
 .btn-inicio:disabled {
-  opacity: 0.55;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -166,7 +167,7 @@
   align-items: center;
   gap: 12px;
   margin: 20px 0 16px;
-  color: rgba(255, 240, 221, 0.28);
+  color: rgba(0, 57, 61, 0.4);
   font-size: 12px;
 }
 
@@ -175,7 +176,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 240, 221, 0.14);
+  background: rgba(0, 57, 61, 0.15);
 }
 
 /* ====== GOOGLE BUTTON ====== */
@@ -186,10 +187,10 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(0, 57, 61, 0.15);
   border-radius: 13px;
-  color: rgba(255, 240, 221, 0.85);
+  color: #00393d;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -198,25 +199,24 @@
 }
 
 .btn-google:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.32);
-  color: #fff0dd;
+  background: #ffffff;
+  border-color: rgba(239, 172, 59, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* ====== TOGGLE TEXT ====== */
 .toggle-text {
   margin-top: 22px;
   font-size: 13px;
-  color: rgba(255, 240, 221, 0.42);
+  color: rgba(0, 57, 61, 0.65);
   text-align: center;
 }
 
 .toggle-text span {
   color: #efac3b;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   transition: opacity 0.18s ease;
 }
 

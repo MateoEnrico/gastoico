@@ -7,8 +7,8 @@ function UserMenu({ session }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  const name    = session.user.user_metadata?.display_name ?? "";
-  const email   = session.user.email ?? "";
+  const name = session.user.user_metadata?.display_name ?? "";
+  const email = session.user.email ?? "";
   const inicial = (name || email).charAt(0).toUpperCase();
 
   useEffect(() => {
@@ -39,9 +39,9 @@ function UserMenu({ session }) {
   );
 }
 
-export const Navbar = ({ session }) => {
+export const Navbar = ({ session, onShowLogin }) => {
   const [showLogin, setShowLogin] = useState(false);
-  const [menuOpen,  setMenuOpen]  = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   /* Cerrar el modal automáticamente cuando se detecta sesión activa */
   useEffect(() => {
@@ -66,24 +66,22 @@ export const Navbar = ({ session }) => {
         </button>
 
         <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
-          <a href="#productos"     className="navbar" onClick={() => setMenuOpen(false)}>Productos</a>
-          <a href="#gastos-fijos"  className="navbar" onClick={() => setMenuOpen(false)}>Gastos fijos</a>
-          <a href="#mano-obra"     className="navbar" onClick={() => setMenuOpen(false)}>Mano de obra</a>
-          <a href="#materia-prima" className="navbar" onClick={() => setMenuOpen(false)}>Materia prima</a>
-          <a href="#impuestos"     className="navbar" onClick={() => setMenuOpen(false)}>Impuestos</a>
-          <a href="#servicios"     className="navbar" onClick={() => setMenuOpen(false)}>Servicios</a>
+          <a href="#productos" className="navbar" onClick={() => setMenuOpen(false)}>Productos</a>
+          <a href="#materia-prima" className="navbar" onClick={() => setMenuOpen(false)}>Materias Primas</a>
+          <a href="#gastos-fijos" className="navbar" onClick={() => setMenuOpen(false)}>Gastos Fijos</a>
+          <a href="#mano-obra" className="navbar" onClick={() => setMenuOpen(false)}>Mano de Obra</a>
+          <a href="#servicios" className="navbar" onClick={() => setMenuOpen(false)}>Servicios</a>
+          <a href="#impuestos" className="navbar" onClick={() => setMenuOpen(false)}>Impuestos</a>
         </nav>
 
         {session ? (
           <UserMenu session={session} />
         ) : (
-          <div className="cont-login" onClick={() => setShowLogin(true)}>
+          <div className="cont-login" onClick={onShowLogin}>
             <img src="/Login.png" alt="Login" className="login" />
           </div>
         )}
       </header>
-
-      {showLogin && <InicioSesion onClose={() => setShowLogin(false)} />}
     </>
   );
 };
