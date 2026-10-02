@@ -15,6 +15,9 @@
   --acento-texto: #8e5e14;
   --error: #b23b3b;
   --error-suave: #f6e3e1;
+  /* El nombre de Gastagro: trigo oscuro + verde lote; sobre oscuro, su versión clara (trigo + papel). */
+  --gastagro-gast: #a86b12;
+  --gastagro-agro: #1f4a2e;
   color-scheme: light;
 }
 
@@ -32,6 +35,8 @@
     --acento-texto: #e0a24a;
     --error: #e07070;
     --error-suave: #3a2323;
+    --gastagro-gast: #efac3b;
+    --gastagro-agro: #faf6ee;
     color-scheme: dark;
   }
 }
@@ -52,6 +57,8 @@
   --color-cipres: #24493f;
   --color-bronce: #c8892b;
   --color-piedra: #eef0ec;
+  --color-gastagro-gast: var(--gastagro-gast);
+  --color-gastagro-agro: var(--gastagro-agro);
 
   --font-marca: var(--font-young-serif), Georgia, serif;
   --font-sans: var(--font-onest), system-ui, sans-serif;

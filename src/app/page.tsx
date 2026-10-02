@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { LogoGastagro } from "@/components/gastagro";
 import { Logo, Simbolo } from "@/components/marca";
 
 /** gastoico.com: la vidriera de la marca. Muestra la app gratis y los demás productos. */
@@ -49,9 +51,9 @@ export default function Landing() {
           <p className="text-texto-2">Una sola cuenta para todos los productos de Gastoico.</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Producto nombre="gastoico" color="#24493F" texto="Tu plata personal: gastos, ingresos, ahorros e inversiones." enlace={{ href: "/app", texto: "Empezar gratis" }} />
-          <Producto nombre="gastagro" color="#6B4F2A" texto="Los costos de tu campo: cuánto te cuesta producir y cuánto necesitás sacar." enlace={{ href: "https://gastagro.vercel.app", texto: "Conocer Gastagro" }} />
-          <Producto nombre="gastemprende" color="#4B4F9C" texto="Costeo para los que fabrican y venden. Próximamente." />
+          <Producto logo={<Logo />} texto="Tu plata personal: gastos, ingresos, ahorros e inversiones." enlace={{ href: "/app", texto: "Empezar gratis" }} />
+          <Producto logo={<LogoGastagro />} deGastoico texto="Los costos de tu campo: cuánto te cuesta producir y cuánto necesitás sacar." enlace={{ href: "https://gastagro.vercel.app", texto: "Conocer Gastagro" }} />
+          <Producto logo={<span className="font-marca text-2xl leading-8 text-texto-2">gastemprende</span>} deGastoico texto="Costeo para los que fabrican y venden." />
         </div>
       </section>
 
@@ -63,17 +65,13 @@ export default function Landing() {
   );
 }
 
-function Producto({ nombre, color, texto, enlace }: { nombre: string; color: string; texto: string; enlace?: { href: string; texto: string } }) {
+function Producto({ logo, deGastoico, texto, enlace }: { logo: ReactNode; deGastoico?: boolean; texto: string; enlace?: { href: string; texto: string } }) {
   return (
     <div className="grid content-start gap-3 rounded-tarjeta border border-linea bg-superficie p-5">
-      <span className="flex items-center gap-2.5">
-        <svg viewBox="0 0 48 48" className="size-8" aria-hidden="true">
-          <rect width="48" height="48" rx="12" fill={color} />
-          <circle cx="24" cy="24" r="15" fill="#C8892B" />
-        </svg>
-        <span className="font-marca text-2xl leading-none">{nombre}</span>
-      </span>
-      {nombre !== "gastoico" && <span className="-mt-2 pl-[42px] text-xs text-texto-2">de Gastoico</span>}
+      <div className="grid gap-1">
+        {logo}
+        {deGastoico && <span className="text-xs text-texto-2">de Gastoico</span>}
+      </div>
       <p className="text-sm text-texto-2">{texto}</p>
       {enlace ? (
         <Link href={enlace.href} className="text-sm font-semibold text-primario">
