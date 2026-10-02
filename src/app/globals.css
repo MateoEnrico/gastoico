@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* Manual de marca v0.2 (gastoico-brain/wiki/producto/marca-visual.md). Claro por defecto; oscuro si el
+   sistema lo pide. Los colores de las categorías son fijos y funcionan en los dos. */
+:root {
+  --fondo: #eef0ec;
+  --superficie: #ffffff;
+  --texto: #17201d;
+  --texto-2: #4a5550;
+  --linea: #d6dbd5;
+  --primario: #24493f;
+  --primario-suave: #dce7e2;
+  --sobre-primario: #eef0ec;
+  --acento: #c8892b;
+  --acento-texto: #8e5e14;
+  --error: #b23b3b;
+  --error-suave: #f6e3e1;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #111614;
+    --superficie: #19201d;
+    --texto: #e7ebe7;
+    --texto-2: #9aa59f;
+    --linea: #2b3531;
+    --primario: #8cc2b0;
+    --primario-suave: #1e2e29;
+    --sobre-primario: #111614;
+    --acento: #e0a24a;
+    --acento-texto: #e0a24a;
+    --error: #e07070;
+    --error-suave: #3a2323;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-texto: var(--texto);
+  --color-texto-2: var(--texto-2);
+  --color-linea: var(--linea);
+  --color-primario: var(--primario);
+  --color-primario-suave: var(--primario-suave);
+  --color-sobre-primario: var(--sobre-primario);
+  --color-acento: var(--acento);
+  --color-acento-texto: var(--acento-texto);
+  --color-error: var(--error);
+  --color-error-suave: var(--error-suave);
+  --color-cipres: #24493f;
+  --color-bronce: #c8892b;
+  --color-piedra: #eef0ec;
+
+  --font-marca: var(--font-young-serif), Georgia, serif;
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --radius-chico: 8px;
+  --radius-tarjeta: 14px;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+/* Los montos: cifras tabulares para que las columnas queden alineadas. */
+.cifra {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}
