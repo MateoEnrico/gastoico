@@ -346,11 +346,19 @@ function lugarRecordado(datos: Datos, moneda: Moneda): string {
 
 // —— Ingreso ——
 
+/** Un ingreso entra al primer lugar disponible (el banco, casi siempre), no al último de los gastos. */
+function lugarParaIngreso(datos: Datos, moneda: Moneda): string {
+  return lugaresDe(datos, moneda).find((l) => l.grupo === "disponible")?.id ?? "";
+}
+
+/** Los conceptos más comunes, para cargar un ingreso de un toque. Van como nota. */
+const CONCEPTOS_INGRESO = ["Sueldo", "Aguinaldo", "Trabajo extra", "Venta", "Alquiler cobrado", "Regalo"];
+
 function FormIngreso({ datos, existente, onListo }: { datos: Datos; existente?: Ingreso; onListo: (texto: string, deshacer?: () => void) => void }) {
   const vigente = useCotizacion(datos);
   const [moneda, setMoneda] = useState<Moneda>(existente?.moneda ?? "ARS");
   const [texto, setTexto] = useState(existente ? numero(existente.monto) : "");
-  const [lugarId, setLugarId] = useState<string>(existente ? (existente.lugarId ?? "") : lugarRecordado(datos, "ARS"));
+  const [lugarId, setLugarId] = useState<string>(existente ? (existente.lugarId ?? "") : lugarParaIngreso(datos, "ARS"));
   const [fecha, setFecha] = useState(existente?.fecha ?? fechaHoy());
   const [nota, setNota] = useState(existente?.nota ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -384,10 +392,26 @@ function FormIngreso({ datos, existente, onListo }: { datos: Datos; existente?: 
 
   return (
     <form onSubmit={guardar} noValidate className="grid gap-5">
-      <SelectorMoneda valor={moneda} onCambio={(m) => (setMoneda(m), setLugarId(lugarRecordado(datos, m)))} />
+      <SelectorMoneda valor={moneda} onCambio={(m) => (setMoneda(m), setLugarId(lugarParaIngreso(datos, m)))} />
       <CampoMonto moneda={moneda} valor={texto} onCambio={(v) => (setTexto(v), setError(null))} etiqueta="Cuánto entró" autoFocus={!existente} error={error} />
+      <div className="grid gap-2">
+        <span className="text-sm text-texto-2">¿De qué?</span>
+        <div className="flex flex-wrap gap-2">
+          {CONCEPTOS_INGRESO.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={nota === c}
+              onClick={() => setNota(nota === c ? "" : c)}
+              className={`presionable min-h-10 rounded-full border px-3.5 text-sm ${nota === c ? "border-primario bg-primario text-sobre-primario" : "border-linea bg-superficie"}`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
       <SelectorLugar id="lugar" etiqueta="¿Adónde entró?" lugares={lugaresDe(datos, moneda, existente?.lugarId)} valor={lugarId} onCambio={setLugarId} sinLugar />
-      <FechaYNota fecha={fecha} setFecha={setFecha} nota={nota} setNota={setNota} placeholder="Sueldo, un cobro, un regalo…" />
+      <FechaYNota fecha={fecha} setFecha={setFecha} nota={nota} setNota={setNota} placeholder="O escribilo acá" />
       <Guardar error={null}>{existente ? "Guardar cambios" : "Guardar ingreso"}</Guardar>
     </form>
   );

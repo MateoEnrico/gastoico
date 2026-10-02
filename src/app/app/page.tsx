@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { ConDatos } from "@/components/con-datos";
+import { BalanceMes } from "@/components/balance-mes";
 import { FilaMovimiento } from "@/components/fila-movimiento";
 import { Logo } from "@/components/marca";
 import { MisApps } from "@/components/mis-apps";
@@ -75,20 +76,8 @@ function Inicio({ datos }: { datos: Datos }) {
         <Grupo titulo="Invertido" total={p.invertido} moneda={moneda} lugares={p.lugares.invertido} />
       </div>
 
-      <Tarjeta className="grid gap-3 p-4">
-        <Link href="/app/movimientos" className="fila-presionable -m-2 flex items-baseline justify-between gap-3 rounded-chico p-2">
-          <span className="font-semibold">Gastos de {nombreMes(mes, { conAnio: false })}</span>
-          <Monto centavos={resumen.total} moneda={moneda} conCentavos={false} className="text-lg font-semibold" />
-        </Link>
-        {resumen.total > 0 && (
-          <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full" role="img" aria-label="Gastos del mes por categoría">
-            {resumen.porCategoria.map((c) => (
-              <span key={c.categoriaId} style={{ flex: c.total, background: datos.categorias.find((x) => x.id === c.categoriaId)?.color ?? "#7D8781" }} />
-            ))}
-          </div>
-        )}
-        <Comparacion actual={resumen.total} anterior={anterior.total} mesAnterior={mesAnterior(mes)} moneda={moneda} categorias={datos} />
-      </Tarjeta>
+      <BalanceMes resumen={resumen} categorias={datos.categorias} acciones enlace="/app/movimientos" />
+      <Comparacion actual={resumen.total} anterior={anterior.total} mesAnterior={mesAnterior(mes)} moneda={moneda} />
 
       <OfrecerInstalar />
 
@@ -137,15 +126,15 @@ function Grupo({ titulo, total, moneda, lugares }: { titulo: string; total: numb
 }
 
 /** "Llevás $ 32.000 más que en septiembre." Sin alarma: es un dato. */
-function Comparacion({ actual, anterior, mesAnterior: mes, moneda }: { actual: number; anterior: number; mesAnterior: string; moneda: Moneda; categorias: Datos }) {
-  if (actual === 0) return <p className="text-sm text-texto-2">Todavía no cargaste gastos este mes.</p>;
-  if (anterior === 0) return null;
+function Comparacion({ actual, anterior, mesAnterior: mes, moneda }: { actual: number; anterior: number; mesAnterior: string; moneda: Moneda }) {
+  if (actual === 0 || anterior === 0) return null;
   const diferencia = actual - anterior;
   const nombre = nombreMes(mes, { conAnio: false });
-  if (Math.abs(diferencia) < 100) return <p className="text-sm text-texto-2">Vas igual que en {nombre}.</p>;
+  if (Math.abs(diferencia) < 100) return <p className="-mt-2 px-1 text-sm text-texto-2">En gastos vas igual que en {nombre}.</p>;
   return (
-    <p className="text-sm text-texto-2">
-      Llevás {monto(Math.abs(diferencia), moneda, { conCentavos: false })} {diferencia > 0 ? "más" : "menos"} que en todo {nombre}.
+    <p className="-mt-2 px-1 text-sm text-texto-2">
+      En gastos, l
+levás {monto(Math.abs(diferencia), moneda, { conCentavos: false })} {diferencia > 0 ? "más" : "menos"} que en todo {nombre}.
     </p>
   );
 }

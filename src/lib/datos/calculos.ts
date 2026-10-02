@@ -63,6 +63,8 @@ export interface ResumenMes {
   moneda: Moneda;
   total: Centavos;
   ingresos: Centavos;
+  /** Lo que entró menos lo que se gastó en el mes. Negativo si se gastó más de lo que entró. */
+  balance: Centavos;
   porCategoria: { categoriaId: string; total: Centavos }[];
   cantidad: number;
   /** Gastos que no se pudieron pasar a la moneda del total (cargados sin cotización). */
@@ -99,6 +101,7 @@ export function resumenMes(datos: Datos, mes: string, moneda: Moneda, cotHoy: Co
     moneda,
     total,
     ingresos,
+    balance: ingresos - total,
     cantidad,
     sinConvertir,
     porCategoria: [...porCategoria].map(([categoriaId, t]) => ({ categoriaId, total: t })).sort((a, b) => b.total - a.total),

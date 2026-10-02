@@ -78,6 +78,7 @@ describe("resumen del mes", () => {
     expect(r.total).toBe(420_000 + 1_200_000);
     expect(r.cantidad).toBe(2);
     expect(r.ingresos).toBe(95_000_000);
+    expect(r.balance).toBe(95_000_000 - 1_620_000);
     // De mayor a menor, y la compra de dólares no aparece: no es un gasto.
     expect(r.porCategoria).toEqual([
       { categoriaId: "salidas", total: 1_200_000 },

@@ -46,18 +46,24 @@ function Movimientos({ datos }: { datos: Datos }) {
       </div>
 
       <Tarjeta className="grid gap-4 p-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="grid gap-0.5">
-            <span className="text-sm text-texto-2">Gastaste</span>
-            <Monto centavos={resumen.total} moneda={moneda} conCentavos={false} className="text-3xl font-semibold" />
+        <dl className="grid gap-1.5 text-[15px]">
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-texto-2">Entraron</dt>
+            <dd>{resumen.ingresos > 0 ? <Monto centavos={resumen.ingresos} moneda={moneda} conCentavos={false} signoIngreso className="font-medium text-primario" /> : <span className="text-texto-2">—</span>}</dd>
           </div>
-          {resumen.ingresos > 0 && (
-            <div className="grid justify-items-end gap-0.5">
-              <span className="text-sm text-texto-2">Entraron</span>
-              <Monto centavos={resumen.ingresos} moneda={moneda} conCentavos={false} signoIngreso className="text-lg font-semibold text-primario" />
-            </div>
-          )}
-        </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="text-texto-2">Gastaste</dt>
+            <dd>
+              <Monto centavos={resumen.total} moneda={moneda} conCentavos={false} className="text-2xl font-semibold" />
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-3 border-t border-linea pt-2">
+            <dt className="font-semibold">{resumen.balance >= 0 ? "Te quedaron" : "Gastaste de más"}</dt>
+            <dd>
+              <Monto centavos={Math.abs(resumen.balance)} moneda={moneda} conCentavos={false} className="font-semibold" />
+            </dd>
+          </div>
+        </dl>
         {resumen.porCategoria.length > 0 && (
           <ul className="grid gap-2.5">
             {resumen.porCategoria.map((c) => {
