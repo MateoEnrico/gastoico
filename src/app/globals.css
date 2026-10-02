@@ -66,11 +66,66 @@
 
   --radius-chico: 8px;
   --radius-tarjeta: 14px;
+
+  /* Movimiento (Emil Kowalski): curvas propias, cortas. Nunca ease-in en la interfaz. */
+  --ease-salida: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-cambio: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-panel: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+html {
+  /* Que no rebote ni se arrastre toda la página como una web: se siente como una app. */
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--fondo);
   color: var(--texto);
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--acento) 30%, transparent);
+}
+
+/* En la capa base, para que las clases de cada campo (como el monto grande) le ganen. */
+@layer base {
+  input,
+  select,
+  textarea {
+    caret-color: var(--acento);
+    /* 16 px como mínimo: con menos, el iPhone hace zoom al tocar el campo. */
+    font-size: max(16px, 1em);
+  }
+}
+
+a,
+button,
+select,
+label,
+[role="radio"] {
+  touch-action: manipulation;
+}
+
+button,
+[role="radio"] {
+  user-select: none;
+}
+
+/* Todo lo que se toca responde al apretar, sin mover lo que está alrededor. */
+.presionable {
+  transition: transform 160ms var(--ease-salida), background-color 160ms var(--ease-salida), opacity 160ms var(--ease-salida);
+}
+.presionable:active {
+  transform: scale(0.97);
+}
+/* Las filas anchas no se achican: se oscurecen apenas. */
+.fila-presionable {
+  transition: background-color 120ms var(--ease-salida);
+}
+.fila-presionable:active {
+  background-color: var(--primario-suave);
 }
 
 /* Los montos: cifras tabulares para que las columnas queden alineadas. */
@@ -84,11 +139,28 @@ body {
   outline-offset: 2px;
 }
 
+/* Con movimiento reducido no se apaga todo: se cambian desplazamientos y escalas por fundidos cortos. */
 @media (prefers-reduced-motion: reduce) {
+  .presionable:active {
+    transform: none;
+    opacity: 0.7;
+  }
   *,
   *::before,
   *::after {
-    transition-duration: 0s !important;
-    animation-duration: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Esqueleto de carga: tiene la forma de lo que va a aparecer. */
+.esqueleto {
+  background: color-mix(in srgb, var(--linea) 70%, transparent);
+  border-radius: 8px;
+  animation: latido 1.4s ease-in-out infinite;
+}
+@keyframes latido {
+  50% {
+    opacity: 0.55;
   }
 }

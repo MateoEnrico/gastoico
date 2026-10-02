@@ -153,17 +153,24 @@ export function editarMovimiento(movimiento: Movimiento) {
   actualizar((d) => ({ ...d, movimientos: d.movimientos.map((m) => (m.id === movimiento.id ? movimiento : m)) }));
 }
 
+/** Vuelve a poner un movimiento borrado (para "Deshacer"). */
+export function restaurarMovimiento(movimiento: Movimiento) {
+  actualizar((d) => (d.movimientos.some((m) => m.id === movimiento.id) ? d : { ...d, movimientos: [...d.movimientos, movimiento] }));
+}
+
 export function borrarMovimiento(id: string) {
   actualizar((d) => ({ ...d, movimientos: d.movimientos.filter((m) => m.id !== id) }));
 }
 
 /** Pone el saldo de un lugar en un valor: guarda la diferencia como ajuste. */
-export function corregirSaldo(lugarId: string, diferencia: number, fecha: string, nota?: string) {
-  if (diferencia === 0) return;
+export function corregirSaldo(lugarId: string, diferencia: number, fecha: string, nota?: string): string | null {
+  if (diferencia === 0) return null;
+  const id = nuevoId();
   actualizar((d) => ({
     ...d,
-    movimientos: [...d.movimientos, { tipo: "ajuste", id: nuevoId(), creado: new Date().toISOString(), fecha, lugarId, diferencia, nota }],
+    movimientos: [...d.movimientos, { tipo: "ajuste", id, creado: new Date().toISOString(), fecha, lugarId, diferencia, nota }],
   }));
+  return id;
 }
 
 export function crearLugar(lugar: Omit<Lugar, "id">): Lugar {

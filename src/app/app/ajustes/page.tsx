@@ -11,7 +11,7 @@ import { confirmar } from "@/lib/confirmacion";
 import { cambiarPreferencias } from "@/lib/datos/almacen";
 import { NOMBRE_DOLAR } from "@/lib/datos/calculos";
 import type { Datos, TipoDolar } from "@/lib/datos/tipos";
-import { cotizacion, leerCotizacion, numero } from "@/lib/formato";
+import { cotizacion, formatearEntrada, leerCotizacion, numero } from "@/lib/formato";
 import { nube } from "@/lib/nube/cliente";
 import { useCotizacion } from "@/lib/usar-cotizacion";
 
@@ -75,7 +75,7 @@ function Ajustes({ datos }: { datos: Datos }) {
                   role="radio"
                   aria-checked={activo}
                   onClick={() => (cambiarPreferencias({ tipoDolar: t, cotizacionPropia: null }), setPropia(""))}
-                  className={`flex min-h-12 items-center justify-between rounded-chico border px-3.5 text-left ${activo ? "border-primario bg-primario-suave" : "border-linea"}`}
+                  className={`presionable flex min-h-12 items-center justify-between rounded-chico border px-3.5 text-left ${activo ? "border-primario bg-primario-suave" : "border-linea"}`}
                 >
                   <span className="flex items-center gap-2.5">
                     <span className={`grid size-4 place-items-center rounded-full border-[1.5px] ${activo ? "border-primario" : "border-texto-2"}`}>{activo && <span className="size-2 rounded-full bg-primario" />}</span>
@@ -95,7 +95,8 @@ function Ajustes({ datos }: { datos: Datos }) {
                 inputMode="decimal"
                 placeholder="Pesos por dólar"
                 value={propia}
-                onChange={(e) => (setPropia(e.target.value), setError(null))}
+                enterKeyHint="done"
+                onChange={(e) => (setPropia(formatearEntrada(e.target.value)), setError(null))}
               />
               <Boton onClick={guardarPropia} className="shrink-0">
                 Usar
@@ -118,7 +119,7 @@ function Ajustes({ datos }: { datos: Datos }) {
       <section className="grid gap-2">
         <h2 className="font-semibold">Para cargar</h2>
         <Tarjeta>
-          <Link href="/app/categorias" className="flex min-h-13 items-center justify-between px-4">
+          <Link href="/app/categorias" className="fila-presionable flex min-h-13 items-center justify-between rounded-tarjeta px-4">
             <span className="flex items-center gap-3">
               <Tags className="size-5 text-texto-2" strokeWidth={1.75} aria-hidden="true" />
               Categorías

@@ -63,7 +63,7 @@ export function SelectorColor({ valor, onCambio }: { valor: string; onCambio: (c
             aria-checked={valor === c}
             aria-label={`Color ${c}`}
             onClick={() => onCambio(c)}
-            className={`size-9 rounded-[10px] ${valor === c ? "outline-2 outline-offset-2 outline-texto" : ""}`}
+            className={`presionable size-11 rounded-[10px] ${valor === c ? "outline-2 outline-offset-2 outline-texto" : ""}`}
             style={{ background: c }}
           />
         ))}

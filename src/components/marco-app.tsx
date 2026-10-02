@@ -33,7 +33,7 @@ export function MarcoApp({ children }: { children: ReactNode }) {
         <Link href="/app" className="px-2">
           <Logo />
         </Link>
-        <Link href="/app/cargar" className="flex min-h-12 items-center justify-center gap-2 rounded-chico bg-primario font-semibold text-sobre-primario">
+        <Link href="/app/cargar" className="presionable flex min-h-12 items-center justify-center gap-2 rounded-chico bg-primario font-semibold text-sobre-primario">
           <Plus className="size-5" strokeWidth={2} aria-hidden="true" />
           Cargar
         </Link>
@@ -43,7 +43,7 @@ export function MarcoApp({ children }: { children: ReactNode }) {
               key={href}
               href={href}
               aria-current={activa(ruta, href) ? "page" : undefined}
-              className={`flex min-h-11 items-center gap-3 rounded-chico px-3 text-[15px] ${activa(ruta, href) ? "bg-primario-suave font-semibold text-texto" : "text-texto-2 hover:bg-primario-suave"}`}
+              className={`fila-presionable flex min-h-11 items-center gap-3 rounded-chico px-3 text-[15px] ${activa(ruta, href) ? "bg-primario-suave font-semibold text-texto" : "text-texto-2 hover:bg-primario-suave"}`}
             >
               <Icono className="size-5" strokeWidth={1.75} aria-hidden="true" />
               {texto}
@@ -61,7 +61,7 @@ export function MarcoApp({ children }: { children: ReactNode }) {
         {SECCIONES.slice(0, 2).map((s) => (
           <ItemBarra key={s.href} {...s} activo={activa(ruta, s.href)} />
         ))}
-        <Link href="/app/cargar" aria-label="Cargar" className="mx-auto -mt-5 grid size-14 place-items-center rounded-2xl bg-primario text-sobre-primario shadow-md">
+        <Link href="/app/cargar" aria-label="Cargar" className="presionable mx-auto -mt-5 grid size-14 place-items-center rounded-2xl bg-primario text-sobre-primario shadow-md">
           <Plus className="size-7" strokeWidth={2} aria-hidden="true" />
         </Link>
         {SECCIONES.slice(2).map((s) => (
@@ -74,7 +74,7 @@ export function MarcoApp({ children }: { children: ReactNode }) {
 
 function ItemBarra({ href, texto, Icono, activo }: (typeof SECCIONES)[number] & { activo: boolean }) {
   return (
-    <Link href={href} aria-current={activo ? "page" : undefined} className={`grid justify-items-center gap-0.5 py-1 text-[11px] ${activo ? "font-semibold text-primario" : "text-texto-2"}`}>
+    <Link href={href} aria-current={activo ? "page" : undefined} className={`presionable grid min-h-12 justify-items-center gap-0.5 py-1 text-[11px] ${activo ? "font-semibold text-primario" : "text-texto-2"}`}>
       <Icono className="size-6" strokeWidth={activo ? 2 : 1.75} aria-hidden="true" />
       {texto}
     </Link>

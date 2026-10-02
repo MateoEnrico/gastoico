@@ -61,7 +61,7 @@ export function FilaMovimiento({ m, datos, conFecha = true }: { m: Movimiento; d
   }
 
   return (
-    <Link href={`/app/cargar?id=${m.id}`} className="grid grid-cols-[14px_minmax(0,1fr)_auto] items-center gap-3 py-2.5">
+    <Link href={`/app/cargar?id=${m.id}`} className="fila-presionable -mx-2 grid min-h-14 grid-cols-[14px_minmax(0,1fr)_auto] items-center gap-3 rounded-chico px-2 py-2.5">
       <span className="grid place-items-center">{marca}</span>
       <span className="grid min-w-0">
         <span className="truncate text-[15px]">{titulo}</span>

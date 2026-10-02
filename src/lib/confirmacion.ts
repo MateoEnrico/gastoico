@@ -1,30 +1,14 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { toast } from "sonner";
 
-/** El "Listo: …" que aparece abajo después de guardar algo. Dura unos segundos. */
-let actual: { texto: string; id: number } | null = null;
-let espera: ReturnType<typeof setTimeout> | null = null;
-const oyentes = new Set<() => void>();
-const avisar = () => oyentes.forEach((fn) => fn());
-
-export function confirmar(texto: string) {
-  actual = { texto, id: Date.now() };
-  avisar();
-  if (espera) clearTimeout(espera);
-  espera = setTimeout(() => {
-    actual = null;
-    avisar();
-  }, 3500);
-}
-
-export function useConfirmacion() {
-  return useSyncExternalStore(
-    (fn) => {
-      oyentes.add(fn);
-      return () => oyentes.delete(fn);
-    },
-    () => actual,
-    () => null,
-  );
+/**
+ * El "Listo: …" que aparece abajo después de guardar algo. Con `deshacer`, ofrece volver atrás: así
+ * borrar o archivar no necesita una pregunta de confirmación antes.
+ */
+export function confirmar(texto: string, deshacer?: () => void) {
+  toast(texto, {
+    duration: deshacer ? 5000 : 3500,
+    action: deshacer ? { label: "Deshacer", onClick: () => (deshacer(), toast("Listo: lo volviste atrás.", { duration: 2500 })) } : undefined,
+  });
 }

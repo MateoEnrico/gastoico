@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ConDatos } from "@/components/con-datos";
 import { PildoraCotizacion } from "@/components/pildora-cotizacion";
 import { Aviso, Boton, CLASE_CAMPO, Encabezado, Etiqueta, Monto, Segmento, Tarjeta } from "@/components/ui";
 import { confirmar } from "@/lib/confirmacion";
-import { corregirSaldo, crearLugar, editarLugar } from "@/lib/datos/almacen";
+import { borrarMovimiento, corregirSaldo, crearLugar, editarLugar } from "@/lib/datos/almacen";
 import { patrimonio, type LugarConSaldo } from "@/lib/datos/calculos";
 import type { Datos, Grupo, Moneda } from "@/lib/datos/tipos";
-import { fechaHoy, leerMonto, monto, numero, SIGNO } from "@/lib/formato";
+import { fechaHoy, formatearEntrada, leerMonto, monto, numero, SIGNO } from "@/lib/formato";
 import { useCotizacion } from "@/lib/usar-cotizacion";
 
 export default function PaginaPlata() {
@@ -19,8 +20,17 @@ function Plata({ datos }: { datos: Datos }) {
   const vigente = useCotizacion(datos);
   const moneda = datos.preferencias.monedaTotal;
   const p = patrimonio(datos, moneda, vigente.valor);
-  const [abierto, setAbierto] = useState<string | null>(null);
+  // Desde el inicio se llega con /app/plata#id: esa fila ya abierta.
+  const [abierto, setAbierto] = useState<string | null>(() => {
+    const desdeEnlace = window.location.hash.slice(1);
+    return datos.lugares.some((l) => l.id === desdeEnlace) ? desdeEnlace : null;
+  });
   const [agregando, setAgregando] = useState<Grupo | null>(null);
+
+  useEffect(() => {
+    const desdeEnlace = window.location.hash.slice(1);
+    if (desdeEnlace) document.getElementById(`lugar-${desdeEnlace}`)?.scrollIntoView({ block: "center" });
+  }, []);
 
   return (
     <div className="grid gap-5">
@@ -47,7 +57,7 @@ function Plata({ datos }: { datos: Datos }) {
               {agregando === grupo ? (
                 <NuevoLugar grupo={grupo} onListo={() => setAgregando(null)} />
               ) : (
-                <button type="button" onClick={() => setAgregando(grupo)} className="flex min-h-12 w-full items-center px-4 text-sm font-medium text-primario">
+                <button type="button" onClick={() => setAgregando(grupo)} className="fila-presionable flex min-h-12 w-full items-center rounded-b-tarjeta px-4 text-sm font-medium text-primario">
                   + Agregar {grupo === "disponible" ? "cuenta, efectivo o billetera" : "plazo fijo, fondo, acciones…"}
                 </button>
               )}
@@ -67,24 +77,28 @@ function FilaLugar({ lugar, abierto, onAbrir }: { lugar: LugarConSaldo; abierto:
 
   function guardar() {
     const nuevo = leerMonto(saldo.replace(/^-/, ""));
+    const antes = { nombre: lugar.nombre };
     if (nuevo === null) return setError("Escribí el saldo de hoy.");
     const conSigno = saldo.trim().startsWith("-") ? -nuevo : nuevo;
     if (nombre.trim() && nombre.trim() !== lugar.nombre) editarLugar(lugar.id, { nombre: nombre.trim() });
-    corregirSaldo(lugar.id, conSigno - lugar.saldo, fechaHoy());
-    confirmar(`Listo: ${nombre.trim() || lugar.nombre} tiene ${monto(conSigno, lugar.moneda)}.`);
+    const ajusteId = corregirSaldo(lugar.id, conSigno - lugar.saldo, fechaHoy());
+    confirmar(`Listo: ${nombre.trim() || lugar.nombre} tiene ${monto(conSigno, lugar.moneda)}.`, () => {
+      editarLugar(lugar.id, antes);
+      if (ajusteId) borrarMovimiento(ajusteId);
+    });
     onAbrir();
   }
 
   return (
-    <div>
-      <button type="button" onClick={onAbrir} aria-expanded={abierto} className="flex min-h-13 w-full items-center justify-between gap-3 px-4 text-left">
+    <div id={`lugar-${lugar.id}`} className="scroll-mt-24">
+      <button type="button" onClick={onAbrir} aria-expanded={abierto} className="fila-presionable flex min-h-13 w-full items-center justify-between gap-3 px-4 text-left">
         <span className="grid">
           <span>{lugar.nombre}</span>
           {lugar.moneda !== "ARS" && <span className="text-xs text-texto-2">En dólares</span>}
         </span>
         <Monto centavos={lugar.saldo} moneda={lugar.moneda} conCentavos={false} className="font-medium" />
       </button>
-      {abierto && (
+      <Desplegable abierto={abierto}>
         <div className="grid gap-3 px-4 pb-4">
           <div className="grid gap-1.5">
             <Etiqueta htmlFor={`nombre-${lugar.id}`}>Nombre</Etiqueta>
@@ -92,7 +106,14 @@ function FilaLugar({ lugar, abierto, onAbrir }: { lugar: LugarConSaldo; abierto:
           </div>
           <div className="grid gap-1.5">
             <Etiqueta htmlFor={`saldo-${lugar.id}`}>Saldo de hoy ({SIGNO[lugar.moneda]})</Etiqueta>
-            <input id={`saldo-${lugar.id}`} className={`${CLASE_CAMPO} cifra`} inputMode="decimal" value={saldo} onChange={(e) => (setSaldo(e.target.value), setError(null))} />
+            <input
+              id={`saldo-${lugar.id}`}
+              className={`${CLASE_CAMPO} cifra`}
+              inputMode="decimal"
+              enterKeyHint="done"
+              value={saldo}
+              onChange={(e) => (setSaldo(formatearEntrada(e.target.value, { negativo: true })), setError(null))}
+            />
             <span className="text-xs text-texto-2">Si cambió solo (intereses, suba de las acciones), poné el saldo nuevo: se guarda la diferencia.</span>
           </div>
           {error && <Aviso tono="error">{error}</Aviso>}
@@ -102,15 +123,37 @@ function FilaLugar({ lugar, abierto, onAbrir }: { lugar: LugarConSaldo; abierto:
               variante="secundario"
               onClick={() => {
                 editarLugar(lugar.id, { archivado: true });
-                confirmar(lugar.saldo === 0 ? `Listo: archivaste ${lugar.nombre}.` : `Listo: archivaste ${lugar.nombre}. Su saldo sigue sumando hasta que quede en cero.`);
+                confirmar(
+                  lugar.saldo === 0 ? `Listo: archivaste ${lugar.nombre}.` : `Listo: archivaste ${lugar.nombre}. Su saldo sigue sumando hasta que quede en cero.`,
+                  () => editarLugar(lugar.id, { archivado: false }),
+                );
               }}
             >
               Archivar
             </Boton>
           </div>
         </div>
-      )}
+      </Desplegable>
     </div>
+  );
+}
+
+/** Abre y cierra una fila: 220 ms al abrir, más rápido al cerrar. */
+function Desplegable({ abierto, children }: { abierto: boolean; children: ReactNode }) {
+  const reducir = useReducedMotion();
+  return (
+    <AnimatePresence initial={false}>
+      {abierto && (
+        <motion.div
+          initial={reducir ? { opacity: 0 } : { height: 0, opacity: 0 }}
+          animate={reducir ? { opacity: 1 } : { height: "auto", opacity: 1, transition: { duration: 0.22, ease: [0.23, 1, 0.32, 1] } }}
+          exit={reducir ? { opacity: 0 } : { height: 0, opacity: 0, transition: { duration: 0.15, ease: [0.23, 1, 0.32, 1] } }}
+          className="overflow-hidden"
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -123,8 +166,8 @@ function NuevoLugar({ grupo: grupoInicial, onListo }: { grupo: Grupo; onListo: (
 
   function crear() {
     if (!nombre.trim()) return setError("Poné un nombre, por ejemplo «Mercado Pago» o «Plazo fijo».");
-    crearLugar({ nombre: nombre.trim(), grupo, moneda, saldoInicial: leerMonto(saldo) ?? 0 });
-    confirmar(`Listo: agregaste ${nombre.trim()}.`);
+    const nuevo = crearLugar({ nombre: nombre.trim(), grupo, moneda, saldoInicial: leerMonto(saldo) ?? 0 });
+    confirmar(`Listo: agregaste ${nombre.trim()}.`, () => editarLugar(nuevo.id, { archivado: true }));
     onListo();
   }
 
@@ -140,7 +183,7 @@ function NuevoLugar({ grupo: grupoInicial, onListo }: { grupo: Grupo; onListo: (
       </div>
       <div className="grid gap-1.5">
         <Etiqueta htmlFor="lugar-saldo">Cuánto hay hoy ({SIGNO[moneda]})</Etiqueta>
-        <input id="lugar-saldo" className={`${CLASE_CAMPO} cifra`} inputMode="decimal" placeholder="0" value={saldo} onChange={(e) => setSaldo(e.target.value)} />
+        <input id="lugar-saldo" className={`${CLASE_CAMPO} cifra`} inputMode="decimal" enterKeyHint="done" placeholder="0" value={saldo} onChange={(e) => setSaldo(formatearEntrada(e.target.value))} />
       </div>
       {error && <Aviso tono="error">{error}</Aviso>}
       <div className="flex gap-2">

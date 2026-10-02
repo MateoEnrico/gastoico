@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { ConDatos } from "@/components/con-datos";
 import { FilaMovimiento } from "@/components/fila-movimiento";
@@ -7,7 +8,7 @@ import { Logo } from "@/components/marca";
 import { MisApps } from "@/components/mis-apps";
 import { OfrecerInstalar } from "@/components/ofrecer-instalar";
 import { PildoraCotizacion } from "@/components/pildora-cotizacion";
-import { Monto, Tarjeta } from "@/components/ui";
+import { Monto, Segmento, Tarjeta } from "@/components/ui";
 import { cambiarPreferencias } from "@/lib/datos/almacen";
 import { convertir, ordenados, patrimonio, resumenMes, type LugarConSaldo } from "@/lib/datos/calculos";
 import type { Datos, Moneda } from "@/lib/datos/tipos";
@@ -41,22 +42,29 @@ function Inicio({ datos }: { datos: Datos }) {
       </div>
 
       <section className="grid gap-3">
-        <button
-          type="button"
-          onClick={() => cambiarPreferencias({ monedaTotal: otra })}
-          className="justify-self-start text-sm text-texto-2"
-          aria-label={`Ver el total en ${otra === "ARS" ? "pesos" : "dólares"}`}
-        >
-          Tu plata hoy · en {moneda === "ARS" ? "pesos" : "dólares"} <span aria-hidden="true">⇄</span>
-        </button>
-        {p.total === null ? (
-          <p className="text-texto-2">Para sumar pesos y dólares hace falta una cotización.</p>
-        ) : (
-          <div className="grid gap-1">
-            <Monto centavos={p.total} moneda={moneda} conCentavos={false} className="text-[40px] leading-none font-semibold sm:text-5xl" />
-            {mezclaMonedas && enOtra !== null && <span className="cifra text-sm text-texto-2">≈ {monto(enOtra, otra, { conCentavos: false })}</span>}
-          </div>
-        )}
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm text-texto-2">Tu plata hoy</span>
+          <Segmento
+            chico
+            etiqueta="Ver los totales en"
+            valor={moneda}
+            onCambio={(m) => cambiarPreferencias({ monedaTotal: m })}
+            opciones={[
+              { valor: "ARS", texto: "$" },
+              { valor: "USD", texto: "US$" },
+            ]}
+          />
+        </div>
+        <CambioSuave clave={moneda}>
+          {p.total === null ? (
+            <p className="text-texto-2">Para sumar pesos y dólares hace falta una cotización.</p>
+          ) : (
+            <div className="grid gap-1">
+              <Monto centavos={p.total} moneda={moneda} conCentavos={false} className="text-[40px] leading-none font-semibold sm:text-5xl" />
+              {mezclaMonedas && enOtra !== null && <span className="cifra text-sm text-texto-2">≈ {monto(enOtra, otra, { conCentavos: false })}</span>}
+            </div>
+          )}
+        </CambioSuave>
         <div>
           <PildoraCotizacion vigente={vigente} />
         </div>
@@ -68,7 +76,7 @@ function Inicio({ datos }: { datos: Datos }) {
       </div>
 
       <Tarjeta className="grid gap-3 p-4">
-        <Link href="/app/movimientos" className="flex items-baseline justify-between gap-3">
+        <Link href="/app/movimientos" className="fila-presionable -m-2 flex items-baseline justify-between gap-3 rounded-chico p-2">
           <span className="font-semibold">Gastos de {nombreMes(mes, { conAnio: false })}</span>
           <Monto centavos={resumen.total} moneda={moneda} conCentavos={false} className="text-lg font-semibold" />
         </Link>
@@ -108,7 +116,7 @@ function Inicio({ datos }: { datos: Datos }) {
 function Grupo({ titulo, total, moneda, lugares }: { titulo: string; total: number | null; moneda: Moneda; lugares: LugarConSaldo[] }) {
   return (
     <Tarjeta className="grid content-start gap-2 p-4">
-      <Link href="/app/plata" className="flex items-baseline justify-between gap-3 border-b border-linea pb-2">
+      <Link href="/app/plata" className="flex min-h-9 items-baseline justify-between gap-3 border-b border-linea pb-2">
         <span className="font-semibold">{titulo}</span>
         {total !== null && <Monto centavos={total} moneda={moneda} conCentavos={false} className="font-semibold" />}
       </Link>
@@ -118,10 +126,10 @@ function Grupo({ titulo, total, moneda, lugares }: { titulo: string; total: numb
         </Link>
       ) : (
         lugares.map((l) => (
-          <div key={l.id} className="flex items-baseline justify-between gap-3 text-sm">
+          <Link key={l.id} href={`/app/plata#${l.id}`} className="fila-presionable -mx-2 flex min-h-9 items-center justify-between gap-3 rounded-chico px-2 text-sm">
             <span className="truncate text-texto-2">{l.nombre}</span>
             <Monto centavos={l.saldo} moneda={l.moneda} conCentavos={false} />
-          </div>
+          </Link>
         ))
       )}
     </Tarjeta>
@@ -139,5 +147,26 @@ function Comparacion({ actual, anterior, mesAnterior: mes, moneda }: { actual: n
     <p className="text-sm text-texto-2">
       Llevás {monto(Math.abs(diferencia), moneda, { conCentavos: false })} {diferencia > 0 ? "más" : "menos"} que en todo {nombre}.
     </p>
+  );
+}
+
+/**
+ * Cuando se cambia de pesos a dólares, el total no cuenta hacia arriba (se mira muchas veces por día):
+ * se funde en 200 ms, con un desenfoque mínimo que tapa el cambio de cifras.
+ */
+function CambioSuave({ clave, children }: { clave: string; children: React.ReactNode }) {
+  const reducir = useReducedMotion();
+  return (
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.div
+        key={clave}
+        initial={reducir ? { opacity: 0 } : { opacity: 0, filter: "blur(2px)", y: 4 }}
+        animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+        exit={reducir ? { opacity: 0 } : { opacity: 0, filter: "blur(2px)", y: -4 }}
+        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
   );
 }

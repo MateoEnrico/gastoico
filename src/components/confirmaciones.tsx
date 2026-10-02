@@ -1,19 +1,27 @@
 "use client";
 
-import { Check } from "lucide-react";
-import { useConfirmacion } from "@/lib/confirmacion";
+import { Toaster } from "sonner";
 
+/**
+ * Los avisos de "Listo". Abajo y al centro, por encima de la barra de navegación en el celular.
+ * Sonner ya anuncia cada aviso a los lectores de pantalla sin robar el foco.
+ */
 export function Confirmaciones() {
-  const actual = useConfirmacion();
-  if (!actual) return null;
   return (
-    <div
-      key={actual.id}
-      role="status"
-      className="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)_+_5.75rem)] z-50 mx-auto flex max-w-md items-center gap-2.5 rounded-tarjeta bg-cipres px-4 py-3 text-sm text-piedra shadow-lg lg:bottom-6"
-    >
-      <Check className="size-4 shrink-0 text-bronce" strokeWidth={2.25} aria-hidden="true" />
-      {actual.texto}
-    </div>
+    <Toaster
+      position="bottom-center"
+      theme="system"
+      offset={{ bottom: 24 }}
+      mobileOffset={{ bottom: "calc(env(safe-area-inset-bottom) + 5.75rem)", left: 16, right: 16 }}
+      toastOptions={{
+        unstyled: true,
+        classNames: {
+          toast: "flex w-full items-center gap-3 rounded-tarjeta bg-cipres px-4 py-3 text-sm text-piedra shadow-lg font-sans",
+          content: "flex-1",
+          title: "leading-snug",
+          actionButton: "presionable shrink-0 rounded-chico bg-piedra/10 px-3 py-1.5 font-semibold text-bronce",
+        },
+      }}
+    />
   );
 }

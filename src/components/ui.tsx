@@ -42,7 +42,7 @@ const VARIANTES: Record<Variante, string> = {
 };
 
 const BASE_BOTON =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-chico px-5 font-semibold transition-[scale,opacity] active:scale-[0.98] disabled:opacity-50";
+  "presionable inline-flex min-h-12 items-center justify-center gap-2 rounded-chico px-5 font-semibold disabled:pointer-events-none disabled:opacity-50";
 
 export function Boton({ variante = "primario", className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variante?: Variante }) {
   return <button type="button" className={`${BASE_BOTON} ${VARIANTES[variante]} ${className}`} {...props} />;
@@ -62,7 +62,7 @@ export function Encabezado({ titulo, accion, volver }: { titulo: string; accion?
     <header className="flex items-center justify-between gap-3 pt-2 pb-4">
       <div className="flex min-w-0 items-center gap-2">
         {volver && (
-          <Link href={volver} className="-ml-2 grid size-10 place-items-center rounded-full text-texto-2 hover:bg-primario-suave" aria-label="Volver">
+          <Link href={volver} className="presionable -ml-2 grid size-11 place-items-center rounded-full text-texto-2 hover:bg-primario-suave" aria-label="Volver">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m15 18-6-6 6-6" />
             </svg>
@@ -86,35 +86,7 @@ export function Etiqueta({ children, htmlFor }: { children: ReactNode; htmlFor?:
 export const CLASE_CAMPO =
   "min-h-12 w-full rounded-chico border-[1.5px] border-linea bg-superficie px-3.5 text-base text-texto outline-none placeholder:text-texto-2/70 focus:border-primario";
 
-/** Elegir entre pocas opciones: Pesos / Dólares, Disponible / Invertido. */
-export function Segmento<T extends string>({
-  opciones,
-  valor,
-  onCambio,
-  etiqueta,
-}: {
-  opciones: { valor: T; texto: string }[];
-  valor: T;
-  onCambio: (v: T) => void;
-  etiqueta: string;
-}) {
-  return (
-    <div role="radiogroup" aria-label={etiqueta} className="inline-flex rounded-[11px] bg-primario-suave p-1">
-      {opciones.map((o) => (
-        <button
-          key={o.valor}
-          type="button"
-          role="radio"
-          aria-checked={valor === o.valor}
-          onClick={() => onCambio(o.valor)}
-          className={`min-h-9 rounded-chico px-3.5 text-sm font-medium transition-colors ${valor === o.valor ? "bg-primario text-sobre-primario" : "text-texto-2"}`}
-        >
-          {o.texto}
-        </button>
-      ))}
-    </div>
-  );
-}
+export { Segmento } from "./segmento";
 
 /** Una categoría como chip: punto de color y nombre. */
 export function ChipCategoria({ nombre, color, activo, onClick }: { nombre: string; color: string; activo?: boolean; onClick?: () => void }) {
@@ -123,7 +95,7 @@ export function ChipCategoria({ nombre, color, activo, onClick }: { nombre: stri
       type="button"
       onClick={onClick}
       aria-pressed={activo}
-      className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 text-sm transition-colors ${
+      className={`presionable inline-flex min-h-10 items-center gap-2 rounded-full border px-3.5 text-sm ${
         activo ? "border-primario bg-primario text-sobre-primario" : "border-linea bg-superficie text-texto"
       }`}
     >

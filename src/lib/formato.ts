@@ -45,6 +45,23 @@ export function leerMonto(texto: string): Centavos | null {
   return Number.isFinite(valor) ? valor : null;
 }
 
+/**
+ * Lo que se ve en el campo mientras se escribe un monto: puntos de miles y coma decimal, como se lee
+ * en Argentina ("4200" → "4.200", "4200,5" → "4.200,5"). Un punto al final se toma como coma, por los
+ * teclados que solo tienen punto. Con `negativo`, deja un "-" adelante (para corregir un saldo).
+ */
+export function formatearEntrada(texto: string, { negativo = false }: { negativo?: boolean } = {}): string {
+  let crudo = texto.trim();
+  const menos = negativo && crudo.startsWith("-");
+  if (crudo.endsWith(".") && !crudo.includes(",")) crudo = `${crudo.slice(0, -1)},`;
+  const limpio = crudo.replace(/[^\d,]/g, "");
+  const [entero, ...resto] = limpio.split(",");
+  const sinCeros = entero.replace(/^0+(?=\d)/, "");
+  const agrupado = sinCeros.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const cuerpo = limpio.includes(",") ? `${agrupado || "0"},${resto.join("").slice(0, 2)}` : agrupado;
+  return menos ? `-${cuerpo}` : cuerpo;
+}
+
 /** Lo mismo para una cotización (pesos por dólar). */
 export function leerCotizacion(texto: string): Cotizacion | null {
   const centavos = leerMonto(texto);

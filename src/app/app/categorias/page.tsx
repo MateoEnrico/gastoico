@@ -44,7 +44,7 @@ function Categorias({ datos }: { datos: Datos }) {
                   <span className="size-3 rounded-[4px]" style={{ background: c.color }} />
                   {c.nombre}
                 </span>
-                <button type="button" onClick={() => (editarCategoria(c.id, { archivada: false }), confirmar(`Listo: ${c.nombre} vuelve a aparecer al cargar.`))} className="text-sm font-medium text-primario">
+                <button type="button" onClick={() => (editarCategoria(c.id, { archivada: false }), confirmar(`Listo: ${c.nombre} vuelve a aparecer al cargar.`))} className="presionable min-h-10 rounded-chico px-2 text-sm font-medium text-primario">
                   Recuperar
                 </button>
               </div>
@@ -62,7 +62,7 @@ function FilaCategoria({ categoria, abierta, onAbrir }: { categoria: Categoria; 
 
   return (
     <div>
-      <button type="button" onClick={onAbrir} aria-expanded={abierta} className="flex min-h-12 w-full items-center gap-3 px-4 text-left">
+      <button type="button" onClick={onAbrir} aria-expanded={abierta} className="fila-presionable flex min-h-12 w-full items-center gap-3 px-4 text-left">
         <span className="size-3.5 rounded-[4px]" style={{ background: categoria.color }} />
         {categoria.nombre}
       </button>
@@ -74,8 +74,20 @@ function FilaCategoria({ categoria, abierta, onAbrir }: { categoria: Categoria; 
           </div>
           <SelectorColor valor={color} onCambio={setColor} />
           <div className="flex flex-wrap gap-2">
-            <Boton onClick={() => (editarCategoria(categoria.id, { nombre: nombre.trim() || categoria.nombre, color }), confirmar("Listo: guardaste la categoría."), onAbrir())}>Guardar</Boton>
-            <Boton variante="secundario" onClick={() => (editarCategoria(categoria.id, { archivada: true }), confirmar(`Listo: archivaste ${categoria.nombre}.`))}>
+            <Boton
+              onClick={() => {
+                const antes = { nombre: categoria.nombre, color: categoria.color };
+                editarCategoria(categoria.id, { nombre: nombre.trim() || categoria.nombre, color });
+                confirmar("Listo: guardaste la categoría.", () => editarCategoria(categoria.id, antes));
+                onAbrir();
+              }}
+            >
+              Guardar
+            </Boton>
+            <Boton
+              variante="secundario"
+              onClick={() => (editarCategoria(categoria.id, { archivada: true }), confirmar(`Listo: archivaste ${categoria.nombre}.`, () => editarCategoria(categoria.id, { archivada: false })))}
+            >
               Archivar
             </Boton>
           </div>

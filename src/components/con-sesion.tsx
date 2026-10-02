@@ -50,10 +50,21 @@ export function ConSesion({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+/** Mientras cargan los datos: la forma del inicio, sin números. */
 export function Cargando() {
   return (
-    <div className="grid min-h-dvh place-items-center" aria-busy="true" aria-label="Cargando">
-      <div className="size-10 animate-pulse rounded-full bg-bronce/60" />
+    <div className="mx-auto grid w-full max-w-2xl gap-5 px-4 pt-[calc(env(safe-area-inset-top)_+_1rem)] lg:px-8 lg:pt-6" aria-busy="true" aria-label="Cargando">
+      <div className="esqueleto h-7 w-32" />
+      <div className="grid gap-2">
+        <div className="esqueleto h-4 w-28" />
+        <div className="esqueleto h-11 w-56" />
+        <div className="esqueleto h-8 w-44 rounded-full" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="esqueleto h-32 rounded-tarjeta" />
+        <div className="esqueleto h-32 rounded-tarjeta" />
+      </div>
+      <div className="esqueleto h-24 rounded-tarjeta" />
     </div>
   );
 }
@@ -123,7 +134,7 @@ function Entrar() {
           <button
             type="button"
             onClick={conGoogle}
-            className="flex min-h-13 items-center justify-center gap-3 rounded-chico border-[1.5px] border-linea bg-superficie px-4 font-semibold transition-[scale] active:scale-[0.98]"
+            className="presionable flex min-h-13 items-center justify-center gap-3 rounded-chico border-[1.5px] border-linea bg-superficie px-4 font-semibold"
           >
             <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
               <path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8z" />
@@ -155,7 +166,7 @@ function Entrar() {
         )}
         {error && <Aviso tono="error">{error}</Aviso>}
         {aviso && <Aviso>{aviso}</Aviso>}
-        <button type="submit" disabled={mandando} className="min-h-13 rounded-chico bg-primario px-4 font-semibold text-sobre-primario transition-[scale] active:scale-[0.98] disabled:opacity-60">
+        <button type="submit" disabled={mandando} className="presionable min-h-13 rounded-chico bg-primario px-4 font-semibold text-sobre-primario disabled:opacity-60">
           {mandando ? "Un momento…" : modo === "entrar" ? "Entrar" : modo === "crear" ? "Crear mi cuenta" : "Mandarme el mail"}
         </button>
         {modo === "entrar" && (

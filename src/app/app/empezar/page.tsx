@@ -7,7 +7,7 @@ import { Logo } from "@/components/marca";
 import { Boton, CLASE_CAMPO } from "@/components/ui";
 import { empezar } from "@/lib/datos/almacen";
 import type { Grupo, Moneda } from "@/lib/datos/tipos";
-import { leerMonto, SIGNO } from "@/lib/formato";
+import { formatearEntrada, leerMonto, SIGNO } from "@/lib/formato";
 
 interface Fila {
   clave: number;
@@ -69,14 +69,14 @@ export default function Empezar() {
               value={f.nombre}
               onChange={(e) => cambiar(f.clave, { nombre: e.target.value })}
             />
-            <button type="button" aria-label={`Sacar ${f.nombre}`} onClick={() => setFilas((fs) => fs.filter((x) => x.clave !== f.clave))} className="grid size-9 place-items-center text-texto-2">
+            <button type="button" aria-label={`Sacar ${f.nombre}`} onClick={() => setFilas((fs) => fs.filter((x) => x.clave !== f.clave))} className="presionable grid size-11 place-items-center rounded-full text-texto-2">
               <X className="size-4" strokeWidth={1.75} aria-hidden="true" />
             </button>
             <div className="col-span-2 flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => cambiar(f.clave, { moneda: f.moneda === "ARS" ? "USD" : "ARS" })}
-                className="min-h-11 shrink-0 rounded-chico border border-linea px-3 text-sm font-medium"
+                className="presionable min-h-12 min-w-12 shrink-0 rounded-chico border border-linea px-3 text-sm font-medium"
                 aria-label={`Moneda: ${f.moneda === "ARS" ? "pesos" : "dólares"}. Tocá para cambiar.`}
               >
                 {SIGNO[f.moneda]}
@@ -88,7 +88,8 @@ export default function Empezar() {
                 inputMode="decimal"
                 placeholder="0"
                 value={f.monto}
-                onChange={(e) => cambiar(f.clave, { monto: e.target.value })}
+                enterKeyHint="next"
+                onChange={(e) => cambiar(f.clave, { monto: formatearEntrada(e.target.value) })}
               />
             </div>
             <span className="col-span-2 text-xs text-texto-2">{f.grupo === "disponible" ? "Disponible" : "Invertido"}</span>
@@ -101,7 +102,7 @@ export default function Empezar() {
           <p className="text-sm text-texto-2">¿Tenés plata en otro lado?</p>
           <div className="flex flex-wrap gap-2">
             {faltan.map((s) => (
-              <button key={s.nombre} type="button" onClick={() => setFilas((fs) => [...fs, { ...s, clave: siguiente++, monto: "" }])} className="min-h-10 rounded-full border border-dashed border-linea px-3.5 text-sm">
+              <button key={s.nombre} type="button" onClick={() => setFilas((fs) => [...fs, { ...s, clave: siguiente++, monto: "" }])} className="presionable min-h-11 rounded-full border border-dashed border-linea px-3.5 text-sm">
                 + {s.nombre}
               </button>
             ))}

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState, type ReactNode } from "react";
+import { Suspense, useRef, useState, type ReactNode } from "react";
 import { ConDatos } from "@/components/con-datos";
 import { Cargando } from "@/components/con-sesion";
 import { NuevaCategoria } from "@/components/categorias";
 import { Aviso, Boton, ChipCategoria, CLASE_CAMPO, Etiqueta, Segmento } from "@/components/ui";
 import {
   borrarMovimiento,
+  restaurarMovimiento,
   cargarGasto,
   cargarIngreso,
   cargarMovida,
@@ -18,7 +19,7 @@ import {
 import { convertir, NOMBRE_DOLAR, saldoLugar } from "@/lib/datos/calculos";
 import type { Ajuste, Datos, Gasto, Ingreso, Lugar, Moneda, Movida, Movimiento } from "@/lib/datos/tipos";
 import { confirmar } from "@/lib/confirmacion";
-import { cotizacion, fechaHoy, leerCotizacion, leerMonto, monto, numero, SIGNO } from "@/lib/formato";
+import { cotizacion, fechaHoy, formatearEntrada, leerCotizacion, leerMonto, monto, numero, SIGNO } from "@/lib/formato";
 import { useCotizacion } from "@/lib/usar-cotizacion";
 
 type Tipo = "gasto" | "ingreso" | "dolares" | "mover";
@@ -46,10 +47,12 @@ function Cargar({ datos }: { datos: Datos }) {
   const pedido = params.get("tipo");
   const [tipo, setTipo] = useState<Tipo>(pedido === "ingreso" || pedido === "dolares" || pedido === "mover" ? pedido : "gasto");
 
-  function terminar(texto: string) {
-    confirmar(texto);
-    if (existente) router.back();
-    else router.push("/app");
+  /** Guardado: avisa (con "Deshacer") y vuelve a la pantalla de la que se vino. */
+  function terminar(texto: string, deshacer?: () => void) {
+    confirmar(texto, deshacer);
+    navigator.vibrate?.(10);
+    if (window.history.length > 1) router.back();
+    else router.replace("/app");
   }
 
   if (id && !existente) {
@@ -70,7 +73,15 @@ function Cargar({ datos }: { datos: Datos }) {
         {t === "dolares" && <FormDolares datos={datos} existente={existente as Movida} onListo={terminar} />}
         {t === "mover" && <FormMover datos={datos} existente={existente as Movida} onListo={terminar} />}
         {t === "ajuste" && <FormAjuste datos={datos} existente={existente as Ajuste} onListo={terminar} />}
-        <Borrar id={existente.id} onListo={() => terminar("Listo: lo borraste.")} />
+        <Boton
+          variante="peligro"
+          onClick={() => {
+            borrarMovimiento(existente.id);
+            terminar("Listo: lo borraste.", () => restaurarMovimiento(existente));
+          }}
+        >
+          Borrar
+        </Boton>
       </Marco>
     );
   }
@@ -103,7 +114,7 @@ function Marco({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <div className="grid gap-5 pt-[env(safe-area-inset-top)]">
       <header className="grid grid-cols-[1fr_auto_1fr] items-center pt-3">
-        <button type="button" onClick={() => (window.history.length > 1 ? router.back() : router.push("/app"))} className="justify-self-start py-2 text-[15px] text-texto-2">
+        <button type="button" onClick={() => (window.history.length > 1 ? router.back() : router.push("/app"))} className="presionable -ml-2 min-h-11 justify-self-start rounded-chico px-2 text-[15px] text-texto-2">
           Cancelar
         </button>
         <h1 className="text-[15px] font-semibold">{titulo}</h1>
@@ -116,8 +127,23 @@ function Marco({ titulo, children }: { titulo: string; children: ReactNode }) {
 
 // —— Piezas comunes ——
 
-function CampoMonto({ moneda, valor, onCambio, etiqueta, autoFocus }: { moneda: Moneda; valor: string; onCambio: (v: string) => void; etiqueta: string; autoFocus?: boolean }) {
+function CampoMonto({
+  moneda,
+  valor,
+  onCambio,
+  etiqueta,
+  autoFocus,
+  error,
+}: {
+  moneda: Moneda;
+  valor: string;
+  onCambio: (v: string) => void;
+  etiqueta: string;
+  autoFocus?: boolean;
+  error?: string | null;
+}) {
   return (
+    <div className="grid justify-items-center gap-1">
     <div className="flex items-baseline justify-center gap-2 py-2">
       <span className="text-2xl font-medium text-texto-2">{SIGNO[moneda]}</span>
       <input
@@ -125,12 +151,21 @@ function CampoMonto({ moneda, valor, onCambio, etiqueta, autoFocus }: { moneda: 
         aria-label={etiqueta}
         autoFocus={autoFocus}
         inputMode="decimal"
+        enterKeyHint="next"
         autoComplete="off"
         placeholder="0"
         value={valor}
-        onChange={(e) => onCambio(e.target.value)}
-        className="cifra w-full max-w-[9ch] bg-transparent text-center text-[52px] leading-none font-semibold caret-acento outline-none focus-visible:outline-none placeholder:text-texto-2/40"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? "monto-error" : undefined}
+        onChange={(e) => onCambio(formatearEntrada(e.target.value))}
+        className={`cifra w-full max-w-[11ch] bg-transparent text-center leading-none font-semibold caret-acento outline-none focus-visible:outline-none placeholder:text-texto-2/40 ${valor.length > 12 ? "text-[34px]" : valor.length > 8 ? "text-[42px]" : "text-[52px]"}`}
       />
+    </div>
+      {error && (
+        <p id="monto-error" className="text-sm text-error">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -182,7 +217,7 @@ function FechaYNota({ fecha, setFecha, nota, setNota, placeholder }: { fecha: st
       </div>
       <div className="grid gap-1.5">
         <Etiqueta htmlFor="nota">Nota</Etiqueta>
-        <input id="nota" className={CLASE_CAMPO} placeholder={placeholder} value={nota} onChange={(e) => setNota(e.target.value)} maxLength={80} />
+        <input id="nota" className={CLASE_CAMPO} placeholder={placeholder} value={nota} onChange={(e) => setNota(e.target.value)} maxLength={80} enterKeyHint="done" />
       </div>
     </div>
   );
@@ -199,32 +234,9 @@ function Guardar({ children, error }: { children: ReactNode; error: string | nul
   );
 }
 
-function Borrar({ id, onListo }: { id: string; onListo: () => void }) {
-  const [seguro, setSeguro] = useState(false);
-  if (!seguro)
-    return (
-      <Boton variante="peligro" onClick={() => setSeguro(true)}>
-        Borrar
-      </Boton>
-    );
-  return (
-    <div className="grid gap-2 rounded-tarjeta border border-linea bg-superficie p-4">
-      <p>¿Lo borramos? No se puede deshacer.</p>
-      <div className="flex gap-2">
-        <Boton variante="peligro" onClick={() => (borrarMovimiento(id), onListo())}>
-          Sí, borrar
-        </Boton>
-        <Boton variante="secundario" onClick={() => setSeguro(false)}>
-          No
-        </Boton>
-      </div>
-    </div>
-  );
-}
-
 // —— Gasto ——
 
-function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Gasto; onListo: (texto: string) => void }) {
+function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Gasto; onListo: (texto: string, deshacer?: () => void) => void }) {
   const vigente = useCotizacion(datos);
   const [moneda, setMoneda] = useState<Moneda>(existente?.moneda ?? datos.ultimo.moneda);
   const [texto, setTexto] = useState(existente ? numero(existente.monto) : "");
@@ -232,8 +244,9 @@ function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Ga
   const [fecha, setFecha] = useState(existente?.fecha ?? fechaHoy());
   const [nota, setNota] = useState(existente?.nota ?? "");
   const [lugarId, setLugarId] = useState<string>(existente ? (existente.lugarId ?? "") : lugarRecordado(datos, datos.ultimo.moneda));
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ campo: "monto" | "categoria"; texto: string } | null>(null);
   const [creando, setCreando] = useState(false);
+  const unaVez = useUnaVez();
 
   const categorias = datos.categorias.filter((c) => !c.archivada || c.id === categoriaId);
   const centavos = leerMonto(texto);
@@ -246,8 +259,8 @@ function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Ga
 
   function guardar(e: React.FormEvent) {
     e.preventDefault();
-    if (!centavos || centavos <= 0) return setError("Escribí cuánto gastaste.");
-    if (!categoriaId) return setError("Elegí una categoría.");
+    if (!centavos || centavos <= 0) return setError({ campo: "monto", texto: "Escribí cuánto gastaste." });
+    if (!categoriaId) return setError({ campo: "categoria", texto: "Elegí en qué fue." });
     const cat = datos.categorias.find((c) => c.id === categoriaId);
     const datosGasto = {
       tipo: "gasto" as const,
@@ -259,16 +272,23 @@ function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Ga
       nota: nota.trim() || undefined,
       cotizacion: existente && existente.moneda === moneda ? existente.cotizacion : vigente.valor,
     };
-    if (existente) editarMovimiento({ ...existente, ...datosGasto });
-    else cargarGasto(datosGasto);
-    onListo(`Listo: ${monto(centavos, moneda)} en ${cat?.nombre ?? "la categoría"}.`);
+    unaVez(() => {
+      const aviso = `Listo: ${monto(centavos, moneda)} en ${cat?.nombre ?? "la categoría"}.`;
+      if (existente) {
+        editarMovimiento({ ...existente, ...datosGasto });
+        onListo(aviso, () => editarMovimiento(existente));
+      } else {
+        const nuevo = cargarGasto(datosGasto);
+        onListo(aviso, () => borrarMovimiento(nuevo.id));
+      }
+    });
   }
 
   return (
     <form onSubmit={guardar} noValidate className="grid gap-5">
       <SelectorMoneda valor={moneda} onCambio={cambiarMoneda} />
       <div className="grid justify-items-center gap-1">
-        <CampoMonto moneda={moneda} valor={texto} onCambio={(v) => (setTexto(v), setError(null))} etiqueta="Cuánto gastaste" autoFocus={!existente} />
+        <CampoMonto moneda={moneda} valor={texto} onCambio={(v) => (setTexto(v), setError(null))} etiqueta="Cuánto gastaste" autoFocus={!existente} error={error?.campo === "monto" ? error.texto : null} />
         {enPesos !== null && vigente.valor && (
           <span className="cifra text-sm text-texto-2">
             ≈ {monto(enPesos, "ARS", { conCentavos: false })} · {vigente.origen === "propia" ? "tu dólar" : NOMBRE_DOLAR[vigente.tipo].replace("Dólar ", "")} {cotizacion(vigente.valor)}
@@ -277,7 +297,9 @@ function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Ga
       </div>
 
       <div className="grid gap-2">
-        <span className="text-sm text-texto-2">¿En qué?</span>
+        <span id="categoria-titulo" className="text-sm text-texto-2">
+          ¿En qué?
+        </span>
         <div className="flex flex-wrap gap-2">
           {categorias.map((c) => (
             <ChipCategoria key={c.id} nombre={c.nombre} color={c.color} activo={c.id === categoriaId} onClick={() => (setCategoriaId(c.id), setError(null))} />
@@ -286,6 +308,7 @@ function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Ga
             + Nueva
           </button>
         </div>
+        {error?.campo === "categoria" && <p className="text-sm text-error">{error.texto}</p>}
         {creando && (
           <NuevaCategoria
             onCreada={(id) => {
@@ -299,9 +322,19 @@ function FormGasto({ datos, existente, onListo }: { datos: Datos; existente?: Ga
 
       <SelectorLugar id="lugar" etiqueta="¿De dónde salió?" lugares={lugaresDe(datos, moneda, existente?.lugarId)} valor={lugarId} onCambio={setLugarId} sinLugar />
       <FechaYNota fecha={fecha} setFecha={setFecha} nota={nota} setNota={setNota} placeholder="Verdulería, nafta…" />
-      <Guardar error={error}>{existente ? "Guardar cambios" : "Guardar gasto"}</Guardar>
+      <Guardar error={null}>{existente ? "Guardar cambios" : "Guardar gasto"}</Guardar>
     </form>
   );
+}
+
+/** Que un doble toque en Guardar no cargue dos veces lo mismo. */
+function useUnaVez() {
+  const hecho = useRef(false);
+  return (accion: () => void) => {
+    if (hecho.current) return;
+    hecho.current = true;
+    accion();
+  };
 }
 
 function lugarRecordado(datos: Datos, moneda: Moneda): string {
@@ -313,7 +346,7 @@ function lugarRecordado(datos: Datos, moneda: Moneda): string {
 
 // —— Ingreso ——
 
-function FormIngreso({ datos, existente, onListo }: { datos: Datos; existente?: Ingreso; onListo: (texto: string) => void }) {
+function FormIngreso({ datos, existente, onListo }: { datos: Datos; existente?: Ingreso; onListo: (texto: string, deshacer?: () => void) => void }) {
   const vigente = useCotizacion(datos);
   const [moneda, setMoneda] = useState<Moneda>(existente?.moneda ?? "ARS");
   const [texto, setTexto] = useState(existente ? numero(existente.monto) : "");
@@ -321,6 +354,7 @@ function FormIngreso({ datos, existente, onListo }: { datos: Datos; existente?: 
   const [fecha, setFecha] = useState(existente?.fecha ?? fechaHoy());
   const [nota, setNota] = useState(existente?.nota ?? "");
   const [error, setError] = useState<string | null>(null);
+  const unaVez = useUnaVez();
 
   function guardar(e: React.FormEvent) {
     e.preventDefault();
@@ -335,26 +369,33 @@ function FormIngreso({ datos, existente, onListo }: { datos: Datos; existente?: 
       nota: nota.trim() || undefined,
       cotizacion: existente && existente.moneda === moneda ? existente.cotizacion : vigente.valor,
     };
-    if (existente) editarMovimiento({ ...existente, ...datosIngreso });
-    else cargarIngreso(datosIngreso);
     const lugar = datos.lugares.find((l) => l.id === lugarId);
-    onListo(`Listo: entraron ${monto(centavos, moneda)}${lugar ? ` en ${lugar.nombre}` : ""}.`);
+    const aviso = `Listo: entraron ${monto(centavos, moneda)}${lugar ? ` en ${lugar.nombre}` : ""}.`;
+    unaVez(() => {
+      if (existente) {
+        editarMovimiento({ ...existente, ...datosIngreso });
+        onListo(aviso, () => editarMovimiento(existente));
+      } else {
+        const nuevo = cargarIngreso(datosIngreso);
+        onListo(aviso, () => borrarMovimiento(nuevo.id));
+      }
+    });
   }
 
   return (
     <form onSubmit={guardar} noValidate className="grid gap-5">
       <SelectorMoneda valor={moneda} onCambio={(m) => (setMoneda(m), setLugarId(lugarRecordado(datos, m)))} />
-      <CampoMonto moneda={moneda} valor={texto} onCambio={(v) => (setTexto(v), setError(null))} etiqueta="Cuánto entró" autoFocus={!existente} />
+      <CampoMonto moneda={moneda} valor={texto} onCambio={(v) => (setTexto(v), setError(null))} etiqueta="Cuánto entró" autoFocus={!existente} error={error} />
       <SelectorLugar id="lugar" etiqueta="¿Adónde entró?" lugares={lugaresDe(datos, moneda, existente?.lugarId)} valor={lugarId} onCambio={setLugarId} sinLugar />
       <FechaYNota fecha={fecha} setFecha={setFecha} nota={nota} setNota={setNota} placeholder="Sueldo, un cobro, un regalo…" />
-      <Guardar error={error}>{existente ? "Guardar cambios" : "Guardar ingreso"}</Guardar>
+      <Guardar error={null}>{existente ? "Guardar cambios" : "Guardar ingreso"}</Guardar>
     </form>
   );
 }
 
 // —— Compra o venta de dólares ——
 
-function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: Movida; onListo: (texto: string) => void }) {
+function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: Movida; onListo: (texto: string, deshacer?: () => void) => void }) {
   const vigente = useCotizacion(datos);
   const lugarDe = (id: string) => datos.lugares.find((l) => l.id === id);
   const compraInicial = existente ? lugarDe(existente.hastaLugarId)?.moneda === "USD" : true;
@@ -372,6 +413,7 @@ function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: 
   const [fecha, setFecha] = useState(existente?.fecha ?? fechaHoy());
   const [nota, setNota] = useState(existente?.nota ?? "");
   const [error, setError] = useState<string | null>(null);
+  const unaVez = useUnaVez();
 
   const usd = leerMonto(dolares);
   const cot = leerCotizacion(cotTexto);
@@ -385,20 +427,31 @@ function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: 
     e.preventDefault();
     if (!usd || usd <= 0) return setError("Escribí cuántos dólares.");
     if (!pesos || pesos <= 0) return setError("Falta la cotización o cuántos pesos fueron.");
+    unaVez(() => guardarCambio(usd, pesos));
+  }
+
+  function guardarCambio(usd: number, pesos: number) {
     const ars = lugarARS === "__nuevo" ? crearLugar({ nombre: "Efectivo", grupo: "disponible", moneda: "ARS", saldoInicial: 0 }).id : lugarARS;
     const dol = lugarUSD === "__nuevo" ? crearLugar({ nombre: "Dólares", grupo: "disponible", moneda: "USD", saldoInicial: 0 }).id : lugarUSD;
     const movida = compra
       ? { desdeLugarId: ars, montoDesde: pesos, hastaLugarId: dol, montoHasta: usd }
       : { desdeLugarId: dol, montoDesde: usd, hastaLugarId: ars, montoHasta: pesos };
     const datosMovida = { tipo: "movida" as const, ...movida, fecha, nota: nota.trim() || undefined };
-    if (existente) editarMovimiento({ ...existente, ...datosMovida });
-    else cargarMovida(datosMovida);
+    let deshacer: () => void;
+    if (existente) {
+      editarMovimiento({ ...existente, ...datosMovida });
+      deshacer = () => editarMovimiento(existente);
+    } else {
+      const nueva = cargarMovida(datosMovida);
+      deshacer = () => borrarMovimiento(nueva.id);
+    }
     const nombreUSD = lugarUSD === "__nuevo" ? "Dólares" : lugarDe(dol)?.nombre;
     const nombreARS = lugarARS === "__nuevo" ? "Efectivo" : lugarDe(ars)?.nombre;
     onListo(
       compra
         ? `Listo: compraste ${monto(usd, "USD")} a ${cotizacion(cotReal ?? 0)}. Quedan en ${nombreUSD}.`
         : `Listo: vendiste ${monto(usd, "USD")} a ${cotizacion(cotReal ?? 0)}. Los pesos quedan en ${nombreARS}.`,
+      deshacer,
     );
   }
 
@@ -415,7 +468,7 @@ function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: 
           ]}
         />
       </div>
-      <CampoMonto moneda="USD" valor={dolares} onCambio={(v) => (setDolares(v), setError(null))} etiqueta="Cuántos dólares" autoFocus={!existente} />
+      <CampoMonto moneda="USD" valor={dolares} onCambio={(v) => (setDolares(v), setError(null))} etiqueta="Cuántos dólares" autoFocus={!existente} error={error?.startsWith("Escribí") ? error : null} />
 
       <div className="grid gap-3 rounded-tarjeta border border-linea bg-superficie p-4">
         <div className="grid grid-cols-2 gap-3">
@@ -426,7 +479,7 @@ function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: 
               className={`${CLASE_CAMPO} cifra`}
               inputMode="decimal"
               value={pesosTexto !== null && cotReal ? numero(Math.round(cotReal * 100)) : cotTexto}
-              onChange={(e) => (setCotTexto(e.target.value), setPesosTexto(null), setError(null))}
+              onChange={(e) => (setCotTexto(formatearEntrada(e.target.value)), setPesosTexto(null), setError(null))}
             />
           </div>
           <div className="grid gap-1.5">
@@ -436,7 +489,7 @@ function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: 
               className={`${CLASE_CAMPO} cifra`}
               inputMode="decimal"
               value={pesosTexto ?? (pesos ? numero(pesos) : "")}
-              onChange={(e) => (setPesosTexto(e.target.value), setError(null))}
+              onChange={(e) => (setPesosTexto(formatearEntrada(e.target.value)), setError(null))}
             />
           </div>
         </div>
@@ -453,14 +506,14 @@ function FormDolares({ datos, existente, onListo }: { datos: Datos; existente?: 
       </div>
       <FechaYNota fecha={fecha} setFecha={setFecha} nota={nota} setNota={setNota} placeholder="MEP en el banco, cueva…" />
       <p className="text-xs text-texto-2">No es un gasto: la plata cambia de moneda y tu total no se mueve.</p>
-      <Guardar error={error}>{existente ? "Guardar cambios" : compra ? "Guardar compra" : "Guardar venta"}</Guardar>
+      <Guardar error={error?.startsWith("Escribí") ? null : error}>{existente ? "Guardar cambios" : compra ? "Guardar compra" : "Guardar venta"}</Guardar>
     </form>
   );
 }
 
 // —— Mover entre lugares de la misma moneda ——
 
-function FormMover({ datos, existente, onListo }: { datos: Datos; existente?: Movida; onListo: (texto: string) => void }) {
+function FormMover({ datos, existente, onListo }: { datos: Datos; existente?: Movida; onListo: (texto: string, deshacer?: () => void) => void }) {
   const activos = datos.lugares.filter((l) => !l.archivado || l.id === existente?.desdeLugarId || l.id === existente?.hastaLugarId);
   const [desde, setDesde] = useState(existente?.desdeLugarId ?? activos[0]?.id ?? "");
   const lugarDesde = datos.lugares.find((l) => l.id === desde);
@@ -470,6 +523,7 @@ function FormMover({ datos, existente, onListo }: { datos: Datos; existente?: Mo
   const [fecha, setFecha] = useState(existente?.fecha ?? fechaHoy());
   const [nota, setNota] = useState(existente?.nota ?? "");
   const [error, setError] = useState<string | null>(null);
+  const unaVez = useUnaVez();
 
   if (activos.length < 2) {
     return (
@@ -488,10 +542,17 @@ function FormMover({ datos, existente, onListo }: { datos: Datos; existente?: Mo
     if (!centavos || centavos <= 0) return setError("Escribí cuánto moviste.");
     if (!hasta || !destinos.some((l) => l.id === hasta)) return setError("Elegí adónde va la plata.");
     const datosMovida = { tipo: "movida" as const, desdeLugarId: desde, montoDesde: centavos, hastaLugarId: hasta, montoHasta: centavos, fecha, nota: nota.trim() || undefined };
-    if (existente) editarMovimiento({ ...existente, ...datosMovida });
-    else cargarMovida(datosMovida);
     const destino = datos.lugares.find((l) => l.id === hasta);
-    onListo(`Listo: pasaste ${monto(centavos, lugarDesde!.moneda)} de ${lugarDesde!.nombre} a ${destino?.nombre}.`);
+    const aviso = `Listo: pasaste ${monto(centavos, lugarDesde!.moneda)} de ${lugarDesde!.nombre} a ${destino?.nombre}.`;
+    unaVez(() => {
+      if (existente) {
+        editarMovimiento({ ...existente, ...datosMovida });
+        onListo(aviso, () => editarMovimiento(existente));
+      } else {
+        const nueva = cargarMovida(datosMovida);
+        onListo(aviso, () => borrarMovimiento(nueva.id));
+      }
+    });
   }
 
   return (
@@ -524,7 +585,7 @@ function FormMover({ datos, existente, onListo }: { datos: Datos; existente?: Mo
 
 // —— Ajuste de saldo ——
 
-function FormAjuste({ datos, existente, onListo }: { datos: Datos; existente: Ajuste; onListo: (texto: string) => void }) {
+function FormAjuste({ datos, existente, onListo }: { datos: Datos; existente: Ajuste; onListo: (texto: string, deshacer?: () => void) => void }) {
   const lugar = datos.lugares.find((l) => l.id === existente.lugarId);
   const [texto, setTexto] = useState(numero(Math.abs(existente.diferencia)));
   const [suma, setSuma] = useState(existente.diferencia >= 0);
@@ -537,7 +598,7 @@ function FormAjuste({ datos, existente, onListo }: { datos: Datos; existente: Aj
     const centavos = leerMonto(texto);
     if (!centavos) return setError("Escribí la diferencia.");
     editarMovimiento({ ...existente, diferencia: suma ? centavos : -centavos, nota: nota.trim() || undefined, fecha });
-    onListo("Listo: guardaste el cambio.");
+    onListo("Listo: guardaste el cambio.", () => editarMovimiento(existente));
   }
 
   return (
@@ -554,9 +615,9 @@ function FormAjuste({ datos, existente, onListo }: { datos: Datos; existente: Aj
           ]}
         />
       </div>
-      <CampoMonto moneda={lugar?.moneda ?? "ARS"} valor={texto} onCambio={setTexto} etiqueta="Cuánto" />
+      <CampoMonto moneda={lugar?.moneda ?? "ARS"} valor={texto} onCambio={setTexto} etiqueta="Cuánto" error={error} />
       <FechaYNota fecha={fecha} setFecha={setFecha} nota={nota} setNota={setNota} placeholder="Intereses de octubre…" />
-      <Guardar error={error}>Guardar cambios</Guardar>
+      <Guardar error={null}>Guardar cambios</Guardar>
     </form>
   );
 }

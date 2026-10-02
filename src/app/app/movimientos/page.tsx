@@ -30,7 +30,7 @@ function Movimientos({ datos }: { datos: Datos }) {
       <Encabezado titulo="Movimientos" />
 
       <div className="flex items-center justify-between">
-        <button type="button" onClick={() => (setMes(mesAnterior(mes)), setFiltro(null))} className="grid size-10 place-items-center rounded-full hover:bg-primario-suave" aria-label="Mes anterior">
+        <button type="button" onClick={() => (setMes(mesAnterior(mes)), setFiltro(null))} className="presionable grid size-11 place-items-center rounded-full hover:bg-primario-suave" aria-label="Mes anterior">
           <ChevronLeft className="size-5" strokeWidth={1.75} aria-hidden="true" />
         </button>
         <span className="font-semibold capitalize">{nombreMes(mes)}</span>
@@ -38,7 +38,7 @@ function Movimientos({ datos }: { datos: Datos }) {
           type="button"
           onClick={() => (setMes(mesAnterior(mes, -1)), setFiltro(null))}
           disabled={mes >= hoy}
-          className="grid size-10 place-items-center rounded-full hover:bg-primario-suave disabled:opacity-30"
+          className="presionable grid size-11 place-items-center rounded-full hover:bg-primario-suave disabled:opacity-30"
           aria-label="Mes siguiente"
         >
           <ChevronRight className="size-5" strokeWidth={1.75} aria-hidden="true" />
@@ -69,7 +69,7 @@ function Movimientos({ datos }: { datos: Datos }) {
                     type="button"
                     onClick={() => setFiltro(activo ? null : c.categoriaId)}
                     aria-pressed={activo}
-                    className={`grid w-full gap-1 rounded-chico px-1 py-0.5 text-left ${filtro && !activo ? "opacity-45" : ""}`}
+                    className={`fila-presionable grid w-full gap-1 rounded-chico px-1 py-1 text-left transition-opacity ${filtro && !activo ? "opacity-45" : ""}`}
                   >
                     <span className="flex items-baseline justify-between gap-3 text-sm">
                       <span className="flex items-center gap-2">
@@ -101,7 +101,7 @@ function Movimientos({ datos }: { datos: Datos }) {
       ) : (
         porDia.map(([fecha, movs]) => (
           <section key={fecha} className="grid">
-            <h2 className="text-xs font-medium tracking-wide text-texto-2 uppercase">{fechaCorta(fecha)}</h2>
+            <h2 className="pt-1 text-sm font-medium text-texto-2">{fechaCorta(fecha)}</h2>
             <div className="divide-y divide-linea">
               {movs.map((m) => (
                 <FilaMovimiento key={m.id} m={m} datos={datos} conFecha={false} />

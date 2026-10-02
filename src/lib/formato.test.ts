@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fechaCorta, fechaHoy, leerCotizacion, leerMonto, mesAnterior, monto, nombreMes } from "./formato";
+import { fechaCorta, fechaHoy, formatearEntrada, leerCotizacion, leerMonto, mesAnterior, monto, nombreMes } from "./formato";
 
 describe("monto", () => {
   it("escribe pesos y dólares como dice el manual", () => {
@@ -46,5 +46,27 @@ describe("fechas", () => {
     expect(fechaCorta("2026-10-02", "2026-10-02")).toBe("Hoy");
     expect(fechaCorta("2026-10-01", "2026-10-02")).toBe("Ayer");
     expect(fechaCorta("2026-09-28", "2026-10-02")).toBe("lun 28/9");
+  });
+});
+
+describe("formatearEntrada", () => {
+  it.each([
+    ["4200", "4.200"],
+    ["1234567", "1.234.567"],
+    ["4200,5", "4.200,5"],
+    ["4200,567", "4.200,56"],
+    ["4.2001", "42.001"],
+    ["4200.", "4.200,"],
+    [",5", "0,5"],
+    ["007", "7"],
+    ["$ 300", "300"],
+    ["", ""],
+  ])("%s → %s", (texto, esperado) => expect(formatearEntrada(texto)).toBe(esperado));
+  it("lo que muestra se vuelve a leer igual", () => {
+    for (const t of ["4200", "1234567,89", "300,5"]) expect(leerMonto(formatearEntrada(t))).toBe(leerMonto(t.replace(",", ",")));
+  });
+  it("deja el menos solo si se pide", () => {
+    expect(formatearEntrada("-5000", { negativo: true })).toBe("-5.000");
+    expect(formatearEntrada("-5000")).toBe("5.000");
   });
 });
