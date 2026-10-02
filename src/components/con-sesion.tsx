@@ -104,7 +104,8 @@ function Entrar() {
     if (clave.length < 6) return setError("La contraseña tiene que tener al menos 6 letras o números.");
     setMandando(true);
     const auth = nube()!.auth;
-    const { data, error } = modo === "entrar" ? await auth.signInWithPassword({ email, password: clave }) : await auth.signUp({ email, password: clave });
+    // El mail de confirmación vuelve a esta app (si no, Supabase manda a la Site URL, que es Gastoico).
+    const { data, error } = modo === "entrar" ? await auth.signInWithPassword({ email, password: clave }) : await auth.signUp({ email, password: clave, options: { emailRedirectTo: `${window.location.origin}/app` } });
     setMandando(false);
     if (!error && !data.session) {
       setModo("entrar");
