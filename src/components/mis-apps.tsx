@@ -13,8 +13,11 @@ export function MisApps() {
           <b className="block font-semibold">Gastoico</b>
           <span className="text-xs text-texto-2">Tu plata. Estás acá.</span>
         </span>
-        <a href="https://gastagro.vercel.app/app" className="rounded-chico px-3 py-2.5 text-sm hover:bg-primario-suave">
-          <b className="block font-semibold">Gastagro</b>
+        <a href="https://gastagro.vercel.app/app" target="_blank" rel="noopener noreferrer" className="rounded-chico px-3 py-2.5 text-sm hover:bg-primario-suave">
+          <b className="block font-semibold">
+            Gastagro <span aria-hidden="true">↗</span>
+            <span className="sr-only">(se abre en otra pestaña)</span>
+          </b>
           <span className="text-xs text-texto-2">Los costos de tu campo, con la misma cuenta.</span>
         </a>
       </div>

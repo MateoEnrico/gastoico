@@ -73,7 +73,12 @@ function Producto({ logo, deGastoico, texto, enlace }: { logo: ReactNode; deGast
         {deGastoico && <span className="text-xs text-texto-2">de Gastoico</span>}
       </div>
       <p className="text-sm text-texto-2">{texto}</p>
-      {enlace ? (
+      {enlace && enlace.href.startsWith("http") ? (
+        // Otro producto de la marca: se abre en otra pestaña para no perder Gastoico.
+        <a href={enlace.href} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primario">
+          {enlace.texto} ↗
+        </a>
+      ) : enlace ? (
         <Link href={enlace.href} className="text-sm font-semibold text-primario">
           {enlace.texto} →
         </Link>
